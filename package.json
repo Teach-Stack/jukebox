@@ -23,6 +23,9 @@
   },
   "dependencies": {
     "@fontsource-variable/space-grotesk": "^5.2.10",
+    "@signaldb/core": "^1.7.2",
+    "@signaldb/indexeddb": "^1.1.0",
+    "@signaldb/svelte": "^1.1.1",
     "@teach-stack/css": "^0.1.3"
   }
 }

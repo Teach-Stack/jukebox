@@ -8,6 +8,11 @@ declare global {
     // interface PageState {}
     // interface Platform {}
   }
+
+  declare type ClassProperties<C> = {
+    // biome-ignore lint/complexity/noBannedTypes: just need to exclude functions
+    [K in keyof C as C[K] extends Function ? never : K]: C[K]
+  }
 }
 
 export {}
