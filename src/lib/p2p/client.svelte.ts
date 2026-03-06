@@ -62,6 +62,7 @@ export class P2PClient {
               'Songs:',
               out.payload.songs,
             )
+            this.songs = out.payload.songs
             break
           default:
             console.warn('[P2PClient] Unhandled message type:', out.type)
@@ -97,5 +98,15 @@ export class P2PClient {
       payload,
     )
     this.connection.send({ type, payload })
+  }
+
+  submitSong(song: {
+    youtubeId: string
+    title: string
+    artist: string
+    thumbnailUrl: string
+    duration: number
+  }) {
+    this.sendMessage('ADD_SONG', { song })
   }
 }

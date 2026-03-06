@@ -1,4 +1,5 @@
 import { Collection } from '../helper.svelte'
+import { Participants } from './participant'
 import { Votes } from './vote'
 
 export class Song {
@@ -11,7 +12,7 @@ export class Song {
   thumbnailUrl!: string
   duration!: number
 
-  addedBy!: string
+  addedById!: string
   addedAt!: number
 
   status!: 'queued' | 'playing' | 'played'
@@ -31,6 +32,10 @@ export class Song {
       if (vote.value === 'down') return score - 1
       return score
     }, 0)
+  }
+
+  get addedBy() {
+    return Participants.findOne({ id: this.addedById })
   }
 }
 
