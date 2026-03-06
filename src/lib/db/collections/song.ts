@@ -1,26 +1,24 @@
-import { Collection } from '../helper.svelte'
+import { BaseEntity, Collection } from '../helper.svelte'
 import { Participants } from './participant'
 import { Votes } from './vote'
 
-export class Song {
-  id!: string
+interface SongType {
+  id: string
 
-  youtubeId!: string
+  youtubeId: string
 
-  title!: string
-  artist!: string
-  thumbnailUrl!: string
-  duration!: number
+  title: string
+  artist: string
+  thumbnailUrl: string
+  duration: number
 
-  addedById!: string
-  addedAt!: number
+  addedById: string
+  addedAt: number
 
-  status!: 'queued' | 'playing' | 'played'
+  status: 'queued' | 'playing' | 'played'
+}
 
-  constructor(data: ClassProperties<Song>) {
-    Object.assign(this, data)
-  }
-
+export class Song extends BaseEntity<SongType>() {
   get votes() {
     return Votes.find({ songId: this.id }).fetch()
   }
@@ -39,7 +37,7 @@ export class Song {
   }
 }
 
-class SongCollection extends Collection<Song> {
+class SongCollection extends Collection<SongType, Song> {
   constructor() {
     super({
       name: 'songs',

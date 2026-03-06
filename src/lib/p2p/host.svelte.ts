@@ -68,7 +68,7 @@ export class P2PHost {
                   addedAt: Date.now(),
                   status: 'queued' as const,
                   addedById: conn.peer,
-                } as any)
+                })
                 console.debug('[P2PHost] Song added to queue')
                 this.broadcastQueue()
               } else {

@@ -1,21 +1,19 @@
-import { Collection } from '../helper.svelte'
+import { BaseEntity, Collection } from '../helper.svelte'
 
-export class Vote {
-  id!: string
+interface VoteType {
+  id: string
 
-  songId!: string
-  participantId!: string
+  songId: string
+  participantId: string
 
-  value!: 'up' | 'down'
+  value: 'up' | 'down'
 
-  timestamp!: number
-
-  constructor(data: ClassProperties<Vote>) {
-    Object.assign(this, data)
-  }
+  timestamp: number
 }
 
-class VoteCollection extends Collection<Vote> {
+export class Vote extends BaseEntity<VoteType>() {}
+
+class VoteCollection extends Collection<VoteType, Vote> {
   constructor() {
     super({
       name: 'votes',

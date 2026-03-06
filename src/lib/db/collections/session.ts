@@ -1,16 +1,13 @@
-import { Collection } from '../helper.svelte'
+import { BaseEntity, Collection } from '../helper.svelte'
 
-export class Session {
-  id!: string
-
-  joinCode!: string
-
-  constructor(data: ClassProperties<Session>) {
-    Object.assign(this, data)
-  }
+interface SessionType {
+  id: string
+  joinCode: string
 }
 
-class SessionCollection extends Collection<Session> {
+export class Session extends BaseEntity<SessionType>() {}
+
+class SessionCollection extends Collection<SessionType, Session> {
   constructor() {
     super({
       name: 'session',
