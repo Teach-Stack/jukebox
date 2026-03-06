@@ -8,11 +8,11 @@ import { type MessageType, P2PMessage } from './messages'
 type ConnectionStatus = 'disconnected' | 'connected' | 'ready' | 'error'
 
 export class P2PClient {
-  private peer = new Peer({ debug: 2 })
+  private peer: Peer
 
   private connection: DataConnection | null = null
 
-  peerId = $state<string | null>(null)
+  peerId = $state<string | null>(sessionStorage.getItem('peerId'))
 
   status = $state<ConnectionStatus>('disconnected')
   errorMessage = $state<string | null>(null)
@@ -23,9 +23,23 @@ export class P2PClient {
   songs = $state<SongType[]>([])
 
   constructor() {
+    if (this.peerId) {
+      console.debug(
+        '[P2PClient] Restoring previous peer ID from session storage:',
+        this.peerId,
+      )
+      this.peer = new Peer(this.peerId, { debug: 2 })
+    } else {
+      console.debug(
+        '[P2PClient] No previous peer ID found in session storage, creating new peer',
+      )
+      this.peer = new Peer({ debug: 2 })
+    }
+
     this.peer.on('open', (id) => {
       console.debug('[P2PClient] Peer opened with ID:', id)
       this.peerId = id
+      sessionStorage.setItem('peerId', id)
       this.status = 'ready'
     })
   }
