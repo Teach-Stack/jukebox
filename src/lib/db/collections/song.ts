@@ -1,22 +1,23 @@
+import { type } from 'arktype'
+
 import { BaseEntity, Collection } from '../helper.svelte'
+
 import { Participants } from './participant'
 import { Votes } from './vote'
 
-interface SongType {
-  id: string
+export const SongType = type({
+  id: 'string',
+  youtubeId: 'string',
+  title: 'string',
+  artist: 'string',
+  thumbnailUrl: 'string',
+  duration: 'number',
+  addedById: 'string',
+  addedAt: 'number',
+  status: "'queued' | 'playing' | 'played'",
+})
 
-  youtubeId: string
-
-  title: string
-  artist: string
-  thumbnailUrl: string
-  duration: number
-
-  addedById: string
-  addedAt: number
-
-  status: 'queued' | 'playing' | 'played'
-}
+export type SongType = typeof SongType.infer
 
 export class Song extends BaseEntity<SongType>() {
   get votes() {

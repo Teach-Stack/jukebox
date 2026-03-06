@@ -1,9 +1,13 @@
+import { type } from 'arktype'
+
 import { BaseEntity, Collection } from '../helper.svelte'
 
-interface SessionType {
-  id: string
-  joinCode: string
-}
+export const SessionType = type({
+  id: 'string',
+  name: 'string',
+})
+
+export type SessionType = typeof SessionType.infer
 
 export class Session extends BaseEntity<SessionType>() {}
 

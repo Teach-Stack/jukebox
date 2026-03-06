@@ -1,4 +1,4 @@
-export { type Participant, Participants } from './collections/participant'
-export { type Session, Sessions } from './collections/session'
-export { Song, Songs } from './collections/song'
-export { type Vote, Votes } from './collections/vote'
+export { Participants, ParticipantType } from './collections/participant'
+export { Sessions, SessionType } from './collections/session'
+export { Songs, SongType } from './collections/song'
+export { Votes, VoteType } from './collections/vote'

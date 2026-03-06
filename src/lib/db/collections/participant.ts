@@ -1,9 +1,12 @@
+import { type } from 'arktype'
 import { BaseEntity, Collection } from '../helper.svelte'
 
-interface ParticipantType {
-  id: string
-  name: string
-}
+export const ParticipantType = type({
+  id: 'string',
+  name: 'string',
+})
+
+export type ParticipantType = typeof ParticipantType.infer
 
 export class Participant extends BaseEntity<ParticipantType>() {}
 

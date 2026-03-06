@@ -1,15 +1,16 @@
+import { type } from 'arktype'
+
 import { BaseEntity, Collection } from '../helper.svelte'
 
-interface VoteType {
-  id: string
+export const VoteType = type({
+  id: 'string',
+  songId: 'string',
+  participantId: 'string',
+  value: "'up' | 'down'",
+  timestamp: 'number',
+})
 
-  songId: string
-  participantId: string
-
-  value: 'up' | 'down'
-
-  timestamp: number
-}
+export type VoteType = typeof VoteType.infer
 
 export class Vote extends BaseEntity<VoteType>() {}
 
