@@ -1,8 +1,8 @@
 import { type } from 'arktype'
 import { type DataConnection, Peer } from 'peerjs'
 
-import { Participants, Songs } from '$lib/db'
-import { type MessageType, P2PMessage } from './messages'
+import { Participants, Songs, SongType } from '$lib/db'
+import { type MessageType, P2PMessage, type SubmittedSong } from './messages'
 
 type ConnectionStatus = 'disconnected' | 'ready' | 'error'
 
@@ -60,23 +60,7 @@ export class P2PHost {
               Participants.insert({ id: conn.peer, name: out.payload.name })
               break
             case 'ADD_SONG': {
-              const { song } = out.payload
-              const validation = this.validateSong(song)
-              if (validation.valid) {
-                Songs.insert({
-                  ...song,
-                  addedAt: Date.now(),
-                  status: 'queued' as const,
-                  addedById: conn.peer,
-                })
-                console.debug('[P2PHost] Song added to queue')
-                this.broadcastQueue()
-              } else {
-                console.debug(
-                  '[P2PHost] Song rejected:',
-                  validation.reason ?? 'Unknown reason',
-                )
-              }
+              this.addSong(out.payload.song, conn.peer)
               break
             }
             default:
@@ -103,30 +87,55 @@ export class P2PHost {
     })
   }
 
-  private validateSong(data: { youtubeId: string }): {
-    valid: boolean
-    reason?: string
-  } {
+  private addSong(song: SubmittedSong, peerId: string) {
     const existingSong = Songs.find({
-      youtubeId: data.youtubeId,
+      youtubeId: song.youtubeId,
       status: 'queued',
     }).count()
 
     if (existingSong > 0) {
-      return { valid: false, reason: 'This song is already in the queue' }
-    }
+      console.debug('[P2PHost] Song is already in the queue')
+      this.broadcastFeedback('Song is already in the queue', 'warning', peerId)
+    } else {
+      Songs.insert({
+        ...song,
+        addedAt: Date.now(),
+        status: 'queued',
+        addedById: peerId,
+      })
 
-    return { valid: true }
+      this.broadcastQueue()
+    }
   }
 
   private broadcastQueue(clientId?: string) {
+    console.debug(
+      '[P2PHost] Broadcasting current queue. Client:',
+      clientId ? clientId : 'all',
+    )
     const songs = Songs.find({})
       .fetch()
-      .sort((a, b) => b.score - a.score)
+      .map((song) => ({ ...song, score: song.score }))
     this.sendMessage('CURRENT_QUEUE', { songs }, clientId)
   }
 
-  sendMessage<T extends MessageType>(
+  private broadcastFeedback(
+    message: string,
+    level: 'info' | 'warning' | 'error' = 'info',
+    clientId?: string,
+  ) {
+    console.debug(
+      '[P2PHost] Broadcasting feedback. Message:',
+      message,
+      'Level:',
+      level,
+      'Client:',
+      clientId,
+    )
+    this.sendMessage('FEEDBACK', { message, level }, clientId)
+  }
+
+  private sendMessage<T extends MessageType>(
     type: T,
     payload: Extract<P2PMessage, { type: T }>['payload'],
     clientId?: string,

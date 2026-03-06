@@ -1,6 +1,5 @@
 <script lang="ts">
 import SongItem from '$lib/components/SongItem.svelte'
-import type { Song } from '$lib/db'
 import { Songs } from '$lib/db'
 import { P2PHost } from '$lib/p2p'
 
@@ -8,13 +7,10 @@ let roomId = 'jukebox-room'
 
 const p2p = new P2PHost(roomId)
 
-let roomName = $state('')
-let name = $state('')
-
 let queue = $derived(
   Songs.find({})
     .fetch()
-    .sort((a: Song, b: Song) => b.score - a.score),
+    .sort((a, b) => b.score - a.score),
 )
 </script>
 

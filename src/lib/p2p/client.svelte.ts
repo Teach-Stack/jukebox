@@ -1,7 +1,7 @@
 import { type } from 'arktype'
 import { type DataConnection, Peer } from 'peerjs'
 
-import type { Song } from '$lib/db'
+import type { SongType } from '$lib/db'
 
 import { type MessageType, P2PMessage } from './messages'
 
@@ -20,7 +20,7 @@ export class P2PClient {
   name = $state<string>('')
   hostId = $state<string>('')
 
-  songs = $state<Song[]>([])
+  songs = $state<SongType[]>([])
 
   constructor() {
     this.peer.on('open', (id) => {
@@ -63,6 +63,16 @@ export class P2PClient {
               out.payload.songs,
             )
             this.songs = out.payload.songs
+            break
+          case 'FEEDBACK':
+            console.debug(
+              '[P2PClient] Received feedback from host:',
+              'Message:',
+              out.payload.message,
+              'Level:',
+              out.payload.level,
+            )
+            alert(`[${out.payload.level.toUpperCase()}] ${out.payload.message}`)
             break
           default:
             console.warn('[P2PClient] Unhandled message type:', out.type)

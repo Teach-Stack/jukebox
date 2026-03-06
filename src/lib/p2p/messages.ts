@@ -1,5 +1,5 @@
 import { type } from 'arktype'
-import { Song } from '$lib/db'
+import { SongType } from '$lib/db'
 
 const PeerNameMessage = type({
   type: "'PEER_NAME'",
@@ -11,20 +11,32 @@ const PeerNameMessage = type({
 const CurrentQueueMessage = type({
   type: "'CURRENT_QUEUE'",
   payload: {
-    songs: type.instanceOf(Song).array(),
+    songs: SongType.and({ score: 'number' }).array(),
   },
 })
+
+export const SubmittedSong = SongType.pick(
+  'youtubeId',
+  'title',
+  'artist',
+  'duration',
+  'thumbnailUrl',
+)
+
+export type SubmittedSong = typeof SubmittedSong.infer
 
 const AddSongMessage = type({
   type: "'ADD_SONG'",
   payload: {
-    song: {
-      youtubeId: 'string',
-      title: 'string',
-      artist: 'string',
-      thumbnailUrl: 'string',
-      duration: 'number',
-    },
+    song: SubmittedSong,
+  },
+})
+
+const FeedbackMessage = type({
+  type: "'FEEDBACK'",
+  payload: {
+    message: 'string',
+    level: "('info' | 'warning' | 'error') = 'info'",
   },
 })
 
@@ -32,6 +44,7 @@ export const P2PMessage = type.or(
   PeerNameMessage,
   CurrentQueueMessage,
   AddSongMessage,
+  FeedbackMessage,
 )
 
 export type P2PMessage = typeof P2PMessage.infer
