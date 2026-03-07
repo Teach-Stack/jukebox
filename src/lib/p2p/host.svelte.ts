@@ -13,6 +13,7 @@ const logger = createLogger('P2PHost')
 export class P2PHost {
   private peer: Peer
   private clients = $state<Record<string, DataConnection>>({})
+  private kickedIds = $state<Set<string>>(new Set())
 
   status = $state<ConnectionStatus>('disconnected')
 
@@ -32,6 +33,19 @@ export class P2PHost {
 
     this.peer.on('connection', (conn) => {
       logger.debug('attempting to connect with peer:', conn.peer)
+
+      if (this.kickedIds.has(conn.peer)) {
+        logger.warn('Rejected connection from kicked peer:', conn.peer)
+        conn.on('open', () => {
+          this.broadcastFeedback(
+            'You have been removed from this room',
+            'error',
+            conn.peer,
+          )
+          conn.close()
+        })
+        return
+      }
 
       conn.on('open', () => {
         logger.success('Connection opened with peer:', conn.peer)
@@ -97,6 +111,30 @@ export class P2PHost {
     Songs.removeOne({ id: songId })
     logger.success('Song removed from queue:', songId)
 
+    this.broadcastQueue()
+  }
+
+  kickParticipant(peerId: string) {
+    logger.debug('Kicking participant:', peerId)
+
+    const conn = this.clients[peerId]
+    if (conn) {
+      this.sendMessage('KICK', {}, peerId)
+      conn.close()
+      delete this.clients[peerId]
+    }
+
+    Songs.find({ addedById: peerId, status: 'queued' })
+      .fetch()
+      .forEach((song) => {
+        Votes.removeMany({ songId: song.id })
+        Songs.removeOne({ id: song.id })
+      })
+
+    Participants.removeOne({ id: peerId })
+    this.kickedIds.add(peerId)
+
+    logger.success('Participant kicked:', peerId)
     this.broadcastQueue()
   }
 

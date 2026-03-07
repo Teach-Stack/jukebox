@@ -40,11 +40,17 @@ const FeedbackMessage = type({
   },
 })
 
+const KickMessage = type({
+  type: "'KICK'",
+  payload: {},
+})
+
 export const P2PMessage = type.or(
   PeerNameMessage,
   CurrentQueueMessage,
   AddSongMessage,
   FeedbackMessage,
+  KickMessage,
 )
 
 export type P2PMessage = typeof P2PMessage.infer

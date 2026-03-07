@@ -25,20 +25,16 @@ const MOCK_SONGS = [
 
 <h3>Join Jukebox</h3>
 
-<pre>
-  Status: {p2p.status}
-  Peer ID: {p2p.peerId}
-</pre>
-
-{#if p2p.status === 'error'}
+{#if p2p.kicked}
+  <p>You have been removed from the room.</p>
+{:else if p2p.status === 'error'}
   <p>Error: {p2p.errorMessage}</p>
-{/if}
-
-{#if p2p.status === 'connected'}
+{:else if p2p.status === 'connected'}
   <p>Connected to Room {p2p.hostId}</p>
 
   <section>
     <button
+      type="button"
       onclick={() => p2p.submitSong(MOCK_SONGS[Math.floor(Math.random() * MOCK_SONGS.length)])}
     >
       Submit Mock Song
@@ -52,9 +48,7 @@ const MOCK_SONGS = [
     {:else}
       <ol>
         {#each p2p.songs as song (song.id)}
-          <li>
-            <SongItem {song} />
-          </li>
+          <li><SongItem {song} /></li>
         {/each}
       </ol>
     {/if}

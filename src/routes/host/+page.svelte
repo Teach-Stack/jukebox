@@ -1,6 +1,6 @@
 <script lang="ts">
 import SongItem from '$lib/components/SongItem.svelte'
-import { Songs } from '$lib/db'
+import { Participants, Songs } from '$lib/db'
 import { P2PHost } from '$lib/p2p'
 
 let roomId = 'jukebox-room'
@@ -12,16 +12,33 @@ let queue = $derived(
     .fetch()
     .sort((a, b) => b.score - a.score),
 )
+
+let participants = $derived(
+  Participants.find({ id: { $in: p2p.clientIds } }).fetch(),
+)
 </script>
 
 <h3>Host Jukebox</h3>
 
-<pre>
-  Status  : {p2p.status}
-  ROOM    : {roomId}
-  Clients : {p2p.clientIds.join(', ')}
-  Songs   : {queue.length}
-</pre>
+<p>Room: <strong>{roomId}</strong> &mdash; Status: {p2p.status}</p>
+
+<section>
+  <h4>Participants ({participants.length})</h4>
+  {#if participants.length === 0}
+    <p>No participants connected yet.</p>
+  {:else}
+    <ul>
+      {#each participants as participant (participant.id)}
+        <li>
+          {participant.name}
+          <button onclick={() => p2p.kickParticipant(participant.id)}>
+            Kick
+          </button>
+        </li>
+      {/each}
+    </ul>
+  {/if}
+</section>
 
 <section>
   <h4>Current Queue</h4>

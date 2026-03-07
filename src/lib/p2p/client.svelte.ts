@@ -19,11 +19,12 @@ export class P2PClient {
 
   status = $state<ConnectionStatus>('disconnected')
   errorMessage = $state<string | null>(null)
+  kicked = $state(false)
 
   name = $state<string>('')
   hostId = $state<string>('')
 
-  songs = $state<SongType[]>([])
+  songs = $state<(SongType & { score: number })[]>([])
 
   constructor() {
     logger.start('Initializing P2PClient')
@@ -90,6 +91,13 @@ export class P2PClient {
               out.payload.level,
             )
             alert(`[${out.payload.level.toUpperCase()}] ${out.payload.message}`)
+            break
+          case 'KICK':
+            logger.warn('Kicked by host')
+            this.kicked = true
+            sessionStorage.removeItem('peerId')
+            this.connection?.close()
+            this.status = 'disconnected'
             break
           default:
             logger.warn('Unhandled message type:', out.type)

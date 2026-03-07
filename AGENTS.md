@@ -27,9 +27,7 @@ src/
 ├── styles/              # Global styles and design system
 ├── app.d.ts             # TypeScript declaration file for the application
 └── app.html             # HTML template for the application
-
 ```
-
 
 
 ## Development Guidelines

@@ -1,9 +1,13 @@
 <script lang="ts">
-import type { Song } from '$lib/db'
+import type { Song, SongType } from '$lib/db'
 import { formatDuration } from '$lib/helpers/format'
 
+type SongProps =
+  | Song
+  | (SongType & { score: number; addedBy?: { name: string } | null })
+
 interface Props {
-  song: Song
+  song: SongProps
   onRemove?: () => void
 }
 
