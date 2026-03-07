@@ -25,11 +25,21 @@ const MOCK_SONGS = [
 
 <h3>Join Jukebox</h3>
 
+<pre>
+  Peer Status      : {p2p.peerStatus}
+  Peer ID          : {p2p.peerId}
+  Connection Status: {p2p.connectionStatus}
+</pre>
+
 {#if p2p.kicked}
   <p>You have been removed from the room.</p>
-{:else if p2p.status === 'error'}
-  <p>Error: {p2p.errorMessage}</p>
-{:else if p2p.status === 'connected'}
+{/if}
+
+{#if p2p.peerStatus === 'error'}
+  <p>Error: {p2p.peerError}</p>
+{/if}
+
+{#if p2p.connectionStatus === 'connected'}
   <p>Connected to Room {p2p.hostId}</p>
 
   <section>
@@ -63,6 +73,6 @@ const MOCK_SONGS = [
       Your name
       <input type="text" placeholder="Your name" bind:value={p2p.name}>
     </label>
-    <button type="submit" disabled={p2p.status !== 'ready'}>Join Room</button>
+    <button type="submit" disabled={p2p.peerStatus !== 'ready'}>Join Room</button>
   </form>
 {/if}

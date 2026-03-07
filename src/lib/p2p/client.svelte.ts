@@ -1,30 +1,31 @@
 import { type } from 'arktype'
-import { type DataConnection, Peer } from 'peerjs'
+import { BaseConnectionErrorType, type DataConnection, DataConnectionErrorType, Peer, PeerErrorType } from 'peerjs'
 
 import { createLogger } from '$lib'
-import type { SongType } from '$lib/db'
 
-import { type MessageType, P2PMessage } from './messages'
+import { type MessageType, P2PMessage, type SongInQueue } from './messages'
 
-type ConnectionStatus = 'disconnected' | 'connected' | 'ready' | 'error'
+type ConnectionStatus = 'disconnected' | 'connected' | 'connecting' | 'error'
+type PeerStatus = 'pending' | 'ready' | 'error' | 'disconnected'
 
 const logger = createLogger('P2PClient')
 
 export class P2PClient {
   private peer: Peer
+  peerId = $state<string | null>(sessionStorage.getItem('jukebox:peer-id'))
+  peerStatus = $state<PeerStatus>('pending')
+  peerError = $state<`${PeerErrorType}` | null>(null)
 
   private connection: DataConnection | null = null
+  connectionStatus = $state<ConnectionStatus>('disconnected')
+  connectionError = $state<`${DataConnectionErrorType}` | `${BaseConnectionErrorType}` | null>(null)
 
-  peerId = $state<string | null>(sessionStorage.getItem('jukebox:peer-id'))
-
-  status = $state<ConnectionStatus>('disconnected')
-  errorMessage = $state<string | null>(null)
   kicked = $state(false)
 
   name = $state<string>('')
   hostId = $state<string>('')
 
-  songs = $state<(SongType & { score: number })[]>([])
+  songs = $state<SongInQueue[]>([])
 
   constructor() {
     logger.start('Initializing P2PClient')
@@ -45,23 +46,24 @@ export class P2PClient {
       logger.ready('Peer opened with ID:', id)
       this.peerId = id
       sessionStorage.setItem('jukebox:peer-id', id)
-      this.status = 'ready'
+      this.peerStatus = 'ready'
     })
 
     this.peer.on('error', (err) => {
       logger.fail('Peer error:', err)
-      this.status = 'error'
-      this.errorMessage = err.message
+      this.peerStatus = 'error'
+      this.peerError = err.type
     })
   }
 
   connect() {
     logger.debug('Attempting to connect to host with ID:', this.hostId)
+    this.connectionStatus = 'connecting'
     this.connection = this.peer.connect(this.hostId)
 
     this.connection.on('open', () => {
       logger.success('Connection opened with host:', this.hostId)
-      this.status = 'connected'
+      this.connectionStatus = 'connected'
 
       this.sendMessage('PEER_NAME', { name: this.name })
     })
@@ -106,14 +108,14 @@ export class P2PClient {
     })
 
     this.connection.on('close', () => {
-      logger.debug('Connection closed with host:', this.hostId)
-      this.status = 'disconnected'
+      logger.debug('Connection closed with host:', this.hostId, 'Attempting to reconnect...')
+      this.connectionStatus = 'disconnected'
     })
 
     this.connection.on('error', (err) => {
       logger.error('Connection error:', err)
-      this.status = 'error'
-      this.errorMessage = err.message
+      this.connectionStatus = 'error'
+      this.connectionError = err.type
     })
   }
 
