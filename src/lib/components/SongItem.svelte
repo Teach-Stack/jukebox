@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { Song } from '$lib/db'
 import { formatDuration } from '$lib/helpers/format'
+import type { SongInQueue } from '$lib/p2p/messages'
 
 interface Props {
   onRemove?: () => void
-  song: Omit<Song, 'votes'>
+  song: SongInQueue
 }
 
 let { song, onRemove }: Props = $props()
