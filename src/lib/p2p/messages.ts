@@ -8,10 +8,13 @@ const PeerNameMessage = type({
   },
 })
 
+const SongInQueue = SongType.and({ score: 'number', addedBy: ParticipantType })
+export type SongInQueue = typeof SongInQueue.infer
+
 const CurrentQueueMessage = type({
   type: "'CURRENT_QUEUE'",
   payload: {
-    songs: SongType.and({ score: 'number', 'addedBy?': ParticipantType }).array(),
+    songs: SongInQueue.array(),
   },
 })
 

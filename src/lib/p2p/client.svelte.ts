@@ -99,7 +99,7 @@ export class P2PClient {
             this.kicked = true
             sessionStorage.removeItem('peerId')
             this.connection?.close()
-            this.status = 'disconnected'
+            this.connectionStatus = 'disconnected'
             break
           default:
             logger.warn('Unhandled message type:', out.type)
