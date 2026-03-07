@@ -1,5 +1,5 @@
 import { type } from 'arktype'
-import { SongType, ParticipantType, Song } from '$lib/db'
+import { ParticipantType, SongType } from '$lib/db'
 
 const PeerNameMessage = type({
   type: "'PEER_NAME'",
@@ -8,7 +8,10 @@ const PeerNameMessage = type({
   },
 })
 
-const SongInQueue = type.instanceOf(Song).omit('addedById', 'votes')
+const SongInQueue = SongType.omit('addedById').and({
+  'addedBy?': ParticipantType,
+  score: 'number',
+})
 export type SongInQueue = typeof SongInQueue.infer
 
 const CurrentQueueMessage = type({
