@@ -1,11 +1,14 @@
 import { type } from 'arktype'
 import { type DataConnection, Peer } from 'peerjs'
 
+import { createLogger } from '$lib'
 import type { SongType } from '$lib/db'
 
 import { type MessageType, P2PMessage } from './messages'
 
 type ConnectionStatus = 'disconnected' | 'connected' | 'ready' | 'error'
+
+const logger = createLogger('P2PClient')
 
 export class P2PClient {
   private peer: Peer
@@ -23,64 +26,64 @@ export class P2PClient {
   songs = $state<SongType[]>([])
 
   constructor() {
+    logger.start('Initializing P2PClient')
     if (this.peerId) {
-      console.debug(
-        '[P2PClient] Restoring previous peer ID from session storage:',
+      logger.debug(
+        'Restoring previous peer ID from session storage:',
         this.peerId,
       )
       this.peer = new Peer(this.peerId, { debug: 2 })
     } else {
-      console.debug(
-        '[P2PClient] No previous peer ID found in session storage, creating new peer',
+      logger.debug(
+        'No previous peer ID found in session storage, creating new peer',
       )
       this.peer = new Peer({ debug: 2 })
     }
 
     this.peer.on('open', (id) => {
-      console.debug('[P2PClient] Peer opened with ID:', id)
+      logger.ready('Peer opened with ID:', id)
       this.peerId = id
       sessionStorage.setItem('peerId', id)
       this.status = 'ready'
     })
+
+    this.peer.on('error', (err) => {
+      logger.fail('Peer error:', err)
+      this.status = 'error'
+      this.errorMessage = err.message
+    })
   }
 
   connect() {
-    console.debug(
-      '[P2PClient] Attempting to connect to host with ID:',
-      this.hostId,
-    )
+    logger.debug('Attempting to connect to host with ID:', this.hostId)
     this.connection = this.peer.connect(this.hostId)
 
     this.connection.on('open', () => {
-      console.debug('[P2PClient] Connection opened with host:', this.hostId)
+      logger.success('Connection opened with host:', this.hostId)
       this.status = 'connected'
 
       this.sendMessage('PEER_NAME', { name: this.name })
     })
 
     this.connection.on('data', (data) => {
-      console.debug('[P2PClient] Received data from host:', 'Data:', data)
+      logger.debug('Received data from host:', 'Data:', data)
       const out = P2PMessage(data)
 
       if (out instanceof type.errors) {
-        console.debug(
-          '[P2PClient] Invalid message received from host:',
-          'Errors:',
-          out,
-        )
+        logger.warn('Invalid message received from host:', 'Errors:', out)
       } else {
         switch (out.type) {
           case 'CURRENT_QUEUE':
-            console.debug(
-              '[P2PClient] Received current queue from host:',
+            logger.debug(
+              'Received current queue from host:',
               'Songs:',
               out.payload.songs,
             )
             this.songs = out.payload.songs
             break
           case 'FEEDBACK':
-            console.debug(
-              '[P2PClient] Received feedback from host:',
+            logger.debug(
+              'Received feedback from host:',
               'Message:',
               out.payload.message,
               'Level:',
@@ -89,18 +92,18 @@ export class P2PClient {
             alert(`[${out.payload.level.toUpperCase()}] ${out.payload.message}`)
             break
           default:
-            console.warn('[P2PClient] Unhandled message type:', out.type)
+            logger.warn('Unhandled message type:', out.type)
         }
       }
     })
 
     this.connection.on('close', () => {
-      console.debug('[P2PClient] Connection closed with host:', this.hostId)
+      logger.debug('Connection closed with host:', this.hostId)
       this.status = 'disconnected'
     })
 
     this.connection.on('error', (err) => {
-      console.error('[P2PClient] Error occurred:', err)
+      logger.error('Connection error:', err)
       this.status = 'error'
       this.errorMessage = err.message
     })
@@ -111,16 +114,11 @@ export class P2PClient {
     payload: Extract<P2PMessage, { type: T }>['payload'],
   ) {
     if (!this.connection || this.connection.open === false) {
-      console.warn('[P2PClient] Cannot send message, no open connection')
+      logger.warn('Cannot send message, no open connection')
       return
     }
 
-    console.debug(
-      '[P2PClient] Sending message type:',
-      type,
-      'Payload:',
-      payload,
-    )
+    logger.debug('Sending message type:', type, 'Payload:', payload)
     this.connection.send({ type, payload })
   }
 

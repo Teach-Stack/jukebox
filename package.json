@@ -28,6 +28,7 @@
     "@signaldb/svelte": "^1.1.1",
     "@teach-stack/css": "^0.1.4",
     "arktype": "^2.2.0",
+    "consola": "^3.4.2",
     "peerjs": "^1.5.5"
   }
 }
