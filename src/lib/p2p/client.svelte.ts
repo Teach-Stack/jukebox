@@ -15,7 +15,7 @@ export class P2PClient {
 
   private connection: DataConnection | null = null
 
-  peerId = $state<string | null>(sessionStorage.getItem('peerId'))
+  peerId = $state<string | null>(sessionStorage.getItem('jukebox:peer-id'))
 
   status = $state<ConnectionStatus>('disconnected')
   errorMessage = $state<string | null>(null)
@@ -44,7 +44,7 @@ export class P2PClient {
     this.peer.on('open', (id) => {
       logger.ready('Peer opened with ID:', id)
       this.peerId = id
-      sessionStorage.setItem('peerId', id)
+      sessionStorage.setItem('jukebox:peer-id', id)
       this.status = 'ready'
     })
 

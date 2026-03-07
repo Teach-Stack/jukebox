@@ -1,5 +1,5 @@
 import { type } from 'arktype'
-import { SongType } from '$lib/db'
+import { SongType, ParticipantType } from '$lib/db'
 
 const PeerNameMessage = type({
   type: "'PEER_NAME'",
@@ -11,7 +11,7 @@ const PeerNameMessage = type({
 const CurrentQueueMessage = type({
   type: "'CURRENT_QUEUE'",
   payload: {
-    songs: SongType.and({ score: 'number' }).array(),
+    songs: SongType.and({ score: 'number', 'addedBy?': ParticipantType }).array(),
   },
 })
 

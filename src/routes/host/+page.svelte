@@ -3,7 +3,7 @@ import SongItem from '$lib/components/SongItem.svelte'
 import { Participants, Songs } from '$lib/db'
 import { P2PHost } from '$lib/p2p'
 
-let roomId = 'jukebox-room'
+let roomId = 'test' // TODO: generate unique room ID and display to user 
 
 const p2p = new P2PHost(roomId)
 

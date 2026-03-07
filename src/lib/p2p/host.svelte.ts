@@ -68,7 +68,7 @@ export class P2PHost {
         } else {
           switch (out.type) {
             case 'PEER_NAME':
-              Participants.insert({ id: conn.peer, name: out.payload.name })
+              this.peerName(conn.peer, out.payload.name)
               break
             case 'ADD_SONG': {
               this.addSong(out.payload.song, conn.peer)
@@ -137,6 +137,18 @@ export class P2PHost {
     logger.success('Participant kicked:', peerId)
     this.broadcastQueue()
   }
+  private peerName(id: string, name: string) {
+    logger.debug('Received peer name from peer:', id, 'Name:', name)
+    const existing = Participants.find({ id }).count()
+
+    if (existing === 0) {
+      Participants.insert({ id, name })
+      logger.success('Added new participant:', name, 'with ID:', id)
+    } else {
+      Participants.updateOne({ id }, { $set: { name } })
+      logger.debug('Updated participant name for ID:', id, 'to:', name)
+    }
+  }
 
   private addSong(song: SubmittedSong, peerId: string) {
     logger.debug('Attempting to add song from peer:', peerId, 'Song:', song)
@@ -172,8 +184,8 @@ export class P2PHost {
       clientId ? clientId : 'all',
     )
     const songs = Songs.find({})
-      .fetch()
-      .map((song) => ({ ...song, score: song.score }))
+      .map((song) => ({ ...song, score: song.score, addedBy: song.addedBy }))
+
     this.sendMessage('CURRENT_QUEUE', { songs }, clientId)
   }
 
