@@ -30,9 +30,7 @@ let queue = $derived(
   {:else}
     <ol>
       {#each queue as song (song.id)}
-        <li>
-          <SongItem {song} />
-        </li>
+        <li><SongItem {song} onRemove={() => p2p.removeSong(song.id)} /></li>
       {/each}
     </ol>
   {/if}

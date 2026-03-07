@@ -2,7 +2,7 @@ import { type } from 'arktype'
 import { type DataConnection, Peer } from 'peerjs'
 
 import { createLogger } from '$lib'
-import { Participants, Songs } from '$lib/db'
+import { Participants, Songs, Votes } from '$lib/db'
 
 import { type MessageType, P2PMessage, type SubmittedSong } from './messages'
 
@@ -82,6 +82,22 @@ export class P2PHost {
       this.errorMessage = err.message
       this.status = 'error'
     })
+  }
+
+  removeSong(songId: string) {
+    logger.debug('Attempting to remove song:', songId)
+
+    const song = Songs.findOne({ id: songId, status: 'queued' })
+    if (!song) {
+      logger.warn('Song not found or not queued, cannot remove:', songId)
+      return
+    }
+
+    Votes.removeMany({ songId })
+    Songs.removeOne({ id: songId })
+    logger.success('Song removed from queue:', songId)
+
+    this.broadcastQueue()
   }
 
   private addSong(song: SubmittedSong, peerId: string) {

@@ -4,9 +4,10 @@ import { formatDuration } from '$lib/helpers/format'
 
 interface Props {
   song: Song
+  onRemove?: () => void
 }
 
-let { song }: Props = $props()
+let { song, onRemove }: Props = $props()
 </script>
 
 <article>
@@ -28,4 +29,7 @@ let { song }: Props = $props()
     <dt>Status</dt>
     <dd>{song.status}</dd>
   </dl>
+  {#if onRemove && song.status === 'queued'}
+    <button type="button" onclick={onRemove}>Remove</button>
+  {/if}
 </article>
