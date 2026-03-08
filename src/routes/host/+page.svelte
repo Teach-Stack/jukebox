@@ -73,64 +73,98 @@ function handlePlayerError(error: string) {
 }
 </script>
 
-<h3>Host Jukebox</h3>
+<div class="layout-readable layout-sidebar invert wide">
+  <header>
+    <h4>Jukebox</h4>
+  </header>
 
-<p>Room: <strong>{roomId}</strong> &mdash; Status: {p2p.status}</p>
+  <aside>
+    <section>
+      <p>Room: <strong>{roomId}</strong></p>
+    </section>
 
-<section>
-  {#if currentSong}
-    <YouTubePlayer
-      bind:this={playerRef}
-      youtubeId={currentSong.youtubeId}
-      onEnded={handleSongEnded}
-      onError={handlePlayerError}
-    />
-  {:else if nextSong}
-    <p>No song currently playing.</p>
-    <button type="button" onclick={playNext}>
-      ▶ Start Playing: {nextSong.title}
-    </button>
-  {:else}
-    <p>Queue is empty. Waiting for participants to add songs...</p>
-  {/if}
-</section>
+    <section>
+      <h4>Participants ({participants.length})</h4>
+      {#if participants.length === 0}
+        <p>No participants connected yet.</p>
+      {:else}
+        <ul>
+          {#each participants as participant (participant.id)}
+            <li>
+              {participant.name}
+              <button
+                type="button"
+                onclick={() => p2p.kickParticipant(participant.id)}
+              >
+                Kick
+              </button>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+    </section>
+  </aside>
 
-<section>
-  <h4>Participants ({participants.length})</h4>
-  {#if participants.length === 0}
-    <p>No participants connected yet.</p>
-  {:else}
-    <ul>
-      {#each participants as participant (participant.id)}
-        <li>
-          {participant.name}
-          <button
-            type="button"
-            onclick={() => p2p.kickParticipant(participant.id)}
-          >
-            Kick
-          </button>
-        </li>
-      {/each}
-    </ul>
-  {/if}
-</section>
+  <main>
+    <section>
+      {#if currentSong}
+        <YouTubePlayer
+          bind:this={playerRef}
+          youtubeId={currentSong.youtubeId}
+          onEnded={handleSongEnded}
+          onError={handlePlayerError}
+        />
+      {:else if nextSong}
+        <p>No song currently playing.</p>
+        <button type="button" onclick={playNext}>
+          ▶ Start Playing: {nextSong.title}
+        </button>
+      {:else}
+        <p>Queue is empty. Waiting for participants to add songs...</p>
+      {/if}
+    </section>
 
-<section>
-  <h4>Current Queue</h4>
-  {#if queue.length === 0}
-    <p>No songs in queue yet. Waiting for participants to add songs...</p>
-  {:else}
-    <ol>
-      {#each queue as song}
-        <li>
+    <section>
+      <h5>Upcoming Songs</h5>
+      {#if queue.length === 0}
+        <p>No songs in queue yet. Waiting for participants to add songs...</p>
+      {:else}
+        {#each queue as song}
           <SongItem
             {song}
             onRemove={() => p2p.removeSong(song.id)}
             canVote={song.status === 'queued'}
           />
-        </li>
-      {/each}
-    </ol>
-  {/if}
-</section>
+        {/each}
+      {/if}
+    </section>
+  </main>
+</div>
+
+<style>
+aside,
+main,
+header {
+  border: var(--border-1);
+  border-color: var(--slate-4);
+  background-color: #fff;
+  padding: var(--pad-m);
+  border-radius: var(--br-s);
+}
+
+.layout-sidebar.invert.wide {
+  grid-template-areas:
+    "header header"
+    "main aside";
+
+  header {
+    grid-area: header;
+  }
+  main {
+    grid-area: main;
+  }
+  aside {
+    grid-area: aside;
+  }
+}
+</style>
