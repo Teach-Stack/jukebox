@@ -51,12 +51,21 @@ const KickMessage = type({
   payload: {},
 })
 
+const CastVoteMessage = type({
+  type: "'CAST_VOTE'",
+  payload: {
+    songId: 'string',
+    value: "'up' | 'down'",
+  },
+})
+
 export const P2PMessage = type.or(
   PeerNameMessage,
   CurrentQueueMessage,
   AddSongMessage,
   FeedbackMessage,
   KickMessage,
+  CastVoteMessage,
 )
 
 export type P2PMessage = typeof P2PMessage.infer

@@ -1,5 +1,11 @@
 import { type } from 'arktype'
-import { BaseConnectionErrorType, type DataConnection, DataConnectionErrorType, Peer, PeerErrorType } from 'peerjs'
+import {
+  type BaseConnectionErrorType,
+  type DataConnection,
+  type DataConnectionErrorType,
+  Peer,
+  type PeerErrorType,
+} from 'peerjs'
 
 import { createLogger } from '$lib'
 
@@ -12,13 +18,15 @@ const logger = createLogger('P2PClient')
 
 export class P2PClient {
   private peer: Peer
-  peerId = $state<string | null>(sessionStorage.getItem('jukebox:peer-id'))
+  peerId = $state<string | null>(localStorage.getItem('jukebox:peer-id'))
   peerStatus = $state<PeerStatus>('pending')
   peerError = $state<`${PeerErrorType}` | null>(null)
 
   private connection: DataConnection | null = null
   connectionStatus = $state<ConnectionStatus>('disconnected')
-  connectionError = $state<`${DataConnectionErrorType}` | `${BaseConnectionErrorType}` | null>(null)
+  connectionError = $state<
+    `${DataConnectionErrorType}` | `${BaseConnectionErrorType}` | null
+  >(null)
 
   kicked = $state(false)
 
@@ -45,7 +53,7 @@ export class P2PClient {
     this.peer.on('open', (id) => {
       logger.ready('Peer opened with ID:', id)
       this.peerId = id
-      sessionStorage.setItem('jukebox:peer-id', id)
+      localStorage.setItem('jukebox:peer-id', id)
       this.peerStatus = 'ready'
     })
 
@@ -97,7 +105,6 @@ export class P2PClient {
           case 'KICK':
             logger.warn('Kicked by host')
             this.kicked = true
-            sessionStorage.removeItem('peerId')
             this.connection?.close()
             this.connectionStatus = 'disconnected'
             break
@@ -108,7 +115,11 @@ export class P2PClient {
     })
 
     this.connection.on('close', () => {
-      logger.debug('Connection closed with host:', this.hostId, 'Attempting to reconnect...')
+      logger.debug(
+        'Connection closed with host:',
+        this.hostId,
+        'Attempting to reconnect...',
+      )
       this.connectionStatus = 'disconnected'
     })
 
@@ -140,5 +151,9 @@ export class P2PClient {
     duration: number
   }) {
     this.sendMessage('ADD_SONG', { song })
+  }
+
+  castVote(songId: string, value: 'up' | 'down') {
+    this.sendMessage('CAST_VOTE', { songId, value })
   }
 }

@@ -3,7 +3,7 @@ import SongItem from '$lib/components/SongItem.svelte'
 import { Participants, Songs } from '$lib/db'
 import { P2PHost } from '$lib/p2p'
 
-let roomId = 'test' // TODO: generate unique room ID and display to user 
+let roomId = 'test' // TODO: generate unique room ID and display to user
 
 const p2p = new P2PHost(roomId)
 
@@ -13,9 +13,7 @@ let queue = $derived(
     .sort((a, b) => b.score - a.score),
 )
 
-let participants = $derived(
-  Participants.find({ id: { $in: p2p.clientIds } }).fetch(),
-)
+let participants = $derived(Participants.find({}).fetch())
 </script>
 
 <h3>Host Jukebox</h3>
@@ -31,7 +29,10 @@ let participants = $derived(
       {#each participants as participant (participant.id)}
         <li>
           {participant.name}
-          <button onclick={() => p2p.kickParticipant(participant.id)}>
+          <button
+            type="button"
+            onclick={() => p2p.kickParticipant(participant.id)}
+          >
             Kick
           </button>
         </li>
@@ -47,7 +48,13 @@ let participants = $derived(
   {:else}
     <ol>
       {#each queue as song (song.id)}
-        <li><SongItem {song} onRemove={() => p2p.removeSong(song.id)} /></li>
+        <li>
+          <SongItem
+            {song}
+            onRemove={() => p2p.removeSong(song.id)}
+            canVote={song.status === 'queued'}
+          />
+        </li>
       {/each}
     </ol>
   {/if}

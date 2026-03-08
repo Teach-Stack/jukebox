@@ -74,6 +74,10 @@ export class P2PHost {
               this.addSong(out.payload.song, conn.peer)
               break
             }
+            case 'CAST_VOTE': {
+              this.castVote(out.payload.songId, out.payload.value, conn.peer)
+              break
+            }
             default:
               break
           }
@@ -178,13 +182,79 @@ export class P2PHost {
     }
   }
 
+  private castVote(songId: string, value: 'up' | 'down', peerId: string) {
+    logger.debug(
+      'Attempting to cast vote from peer:',
+      peerId,
+      'Song:',
+      songId,
+      'Value:',
+      value,
+    )
+
+    // Check if song exists and is queued
+    const song = Songs.findOne({ id: songId, status: 'queued' })
+    if (!song) {
+      logger.warn('Cannot vote: Song not found or not queued:', songId)
+      this.broadcastFeedback('Cannot vote on this song', 'error', peerId)
+      return
+    }
+
+    // Check if user already voted on this song
+    const existingVote = Votes.findOne({ songId, participantId: peerId })
+    if (existingVote) {
+      logger.warn(
+        'Cannot vote: User already voted on this song:',
+        peerId,
+        songId,
+      )
+      this.broadcastFeedback(
+        'You have already voted on this song',
+        'error',
+        peerId,
+      )
+      return
+    }
+
+    // Check if user is voting on their own song
+    if (song.addedById === peerId) {
+      logger.warn(
+        'Cannot vote: User trying to vote on their own song:',
+        peerId,
+        songId,
+      )
+      this.broadcastFeedback(
+        'You cannot vote on your own song',
+        'error',
+        peerId,
+      )
+      return
+    }
+
+    // Insert vote
+    Votes.insert({
+      id: crypto.randomUUID(),
+      songId,
+      participantId: peerId,
+      value,
+      timestamp: Date.now(),
+    })
+    logger.success('Vote cast:', value, 'on song:', songId, 'by peer:', peerId)
+
+    // Broadcast updated queue
+    this.broadcastQueue()
+  }
+
   private broadcastQueue(clientId?: string) {
     logger.debug(
       'Broadcasting current queue. Client:',
       clientId ? clientId : 'all',
     )
-    const songs = Songs.find({})
-      .map((song) => ({ ...song, score: song.score, addedBy: song.addedBy }))
+    const songs = Songs.find({}).map((song) => ({
+      ...song,
+      score: song.score,
+      addedBy: song.addedBy,
+    }))
 
     this.sendMessage('CURRENT_QUEUE', { songs }, clientId)
   }
