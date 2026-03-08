@@ -2,6 +2,7 @@
 /// <reference types="@types/youtube" />
 
 import { createLogger } from '$lib'
+import type { SongInQueue } from '$lib/p2p/messages'
 
 const logger = createLogger('YouTubePlayer')
 
@@ -76,12 +77,13 @@ export class YouTubePlayerState {
     logger.debug('Creating YT.Player instance with element:', elementId)
     try {
       this.player = new YT.Player(elementId, {
-        height: '390',
-        width: '640',
+        height: '113',
+        width: '200',
         playerVars: {
           autoplay: 0,
           controls: 0, // Hide native YouTube controls
           modestbranding: 1,
+          showinfo: 0,
           rel: 0,
           fs: 1,
           iv_load_policy: 3,
@@ -321,12 +323,15 @@ export class YouTubePlayerState {
 
 <script lang="ts">
 interface Props {
-  youtubeId?: string
   onEnded?: () => void
+  onSkip?: () => void
   onError?: (error: string) => void
+  song: SongInQueue
 }
 
-let { youtubeId, onEnded, onError }: Props = $props()
+let { song, onEnded, onError, onSkip }: Props = $props()
+
+const youtubeId = $derived(song.youtubeId)
 
 const playerState = new YouTubePlayerState()
 const playerElementId = 'youtube-player'
@@ -407,51 +412,92 @@ function togglePlayback() {
 
 <div class="youtube-player">
   <!-- YouTube iframe container -->
-  <div id={playerElementId}></div>
+  <div id={playerElementId} class="player"></div>
 
   <!-- Error display -->
   {#if playerState.playerState === 'error'}
     <div class="error">
       <p><strong>Error:</strong> {playerState.errorMessage}</p>
     </div>
+  {:else if playerState.playerState !== 'uninitialized'}
+    <div class="info">
+      <div>
+        <p class="title">{song.title}</p>
+        <p class="artist">{song.artist}</p>
+      </div>
+      <div class="controls">
+        <button
+          type="button"
+          class="sm"
+          onclick={togglePlayback}
+          aria-label={playerState.playerState === 'playing' ? 'Pause' : 'Play'}
+        >
+          {playerState.playerState === 'playing' ? '⏸' : '▶'}
+        </button>
+        <div class="progress">
+          <input
+            type="range"
+            min="0"
+            max={playerState.duration || 100}
+            value={playerState.currentTime}
+            oninput={handleProgressInput}
+          >
+          <div class="split">
+            <span>{formatTime(playerState.currentTime)}</span>
+            <span>{formatTime(playerState.duration)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {#if onSkip}
+      <button type="button" class="error sm" onclick={onSkip}>Skip</button>
+    {/if}
   {/if}
-
-  <!-- Custom controls -->
-  <div class="controls">
-    <button
-      type="button"
-      onclick={togglePlayback}
-      disabled={playerState.playerState === 'error' ||
-				playerState.playerState === 'uninitialized'}
-    >
-      {playerState.playerState === 'playing' ? 'Pause' : 'Play'}
-    </button>
-
-    <div class="progress">
-      <span>{formatTime(playerState.currentTime)}</span>
-      <input
-        type="range"
-        min="0"
-        max={playerState.duration || 100}
-        value={playerState.currentTime}
-        oninput={handleProgressInput}
-        disabled={playerState.playerState === 'error' ||
-					playerState.playerState === 'uninitialized'}
-      >
-      <span>{formatTime(playerState.duration)}</span>
-    </div>
-
-    <div class="volume">
-      <label for="volume-slider">Volume</label>
-      <input
-        id="volume-slider"
-        type="range"
-        min="0"
-        max="100"
-        value={playerState.volume}
-        oninput={handleVolumeInput}
-      >
-      <span>{Math.round(playerState.volume)}%</span>
-    </div>
-  </div>
 </div>
+
+<style>
+.youtube-player {
+  display: flex;
+  align-items: center;
+  gap: var(--pad-m);
+}
+
+.player {
+  border-radius: var(--br-s);
+}
+
+.info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+}
+
+.title {
+  font-weight: bold;
+  margin: 0;
+  font-size: 1rem;
+  line-height: var(--lh-s);
+}
+.artist {
+  color: var(--slate-7);
+  font-size: 0.875rem;
+  line-height: var(--lh-xs);
+}
+
+.controls {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pad-m);
+  margin-top: var(--pad-s);
+}
+
+.progress {
+  flex: 1;
+  input[type="range"] {
+    margin: 0;
+  }
+}
+</style>

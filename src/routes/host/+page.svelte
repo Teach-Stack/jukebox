@@ -16,7 +16,7 @@ let currentSong = $derived(Songs.findOne({ status: 'playing' }))
 
 // Queue (filter out played songs)
 let queue = $derived(
-  Songs.find({ status: { $in: ['queued', 'playing'] } })
+  Songs.find({ status: { $in: ['queued'] } })
     .fetch()
     .sort((a, b) => b.score - a.score),
 )
@@ -84,43 +84,44 @@ function handlePlayerError(error: string) {
     </section>
 
     <section>
-      <h4>Participants ({participants.length})</h4>
+      <h6>Participants ({participants.length})</h6>
       {#if participants.length === 0}
         <p>No participants connected yet.</p>
       {:else}
-        <ul>
+        <div class="stack">
           {#each participants as participant (participant.id)}
-            <li>
+            <div class="participant">
               {participant.name}
               <button
                 type="button"
+                class="sm"
                 onclick={() => p2p.kickParticipant(participant.id)}
               >
                 Kick
               </button>
-            </li>
+            </div>
           {/each}
-        </ul>
+        </div>
       {/if}
     </section>
   </aside>
 
-  <main>
+  <main class="stack">
     <section>
+      <h4>Now Playing</h4>
       {#if currentSong}
         <YouTubePlayer
           bind:this={playerRef}
-          youtubeId={currentSong.youtubeId}
+          song={currentSong}
           onEnded={handleSongEnded}
           onError={handlePlayerError}
+          onSkip={skipSong}
         />
       {:else if nextSong}
         <p>No song currently playing.</p>
         <button type="button" onclick={playNext}>
-          ▶ Start Playing: {nextSong.title}
+          Start Playing: {nextSong.title}
         </button>
-      {:else}
-        <p>Queue is empty. Waiting for participants to add songs...</p>
       {/if}
     </section>
 
@@ -129,13 +130,15 @@ function handlePlayerError(error: string) {
       {#if queue.length === 0}
         <p>No songs in queue yet. Waiting for participants to add songs...</p>
       {:else}
-        {#each queue as song}
-          <SongItem
-            {song}
-            onRemove={() => p2p.removeSong(song.id)}
-            canVote={song.status === 'queued'}
-          />
-        {/each}
+        <div class="stack">
+          {#each queue as song}
+            <SongItem
+              {song}
+              onRemove={() => p2p.removeSong(song.id)}
+              canVote={song.status === 'queued'}
+            />
+          {/each}
+        </div>
       {/if}
     </section>
   </main>
@@ -143,16 +146,20 @@ function handlePlayerError(error: string) {
 
 <style>
 aside,
-main,
-header {
+main {
   border: var(--border-1);
   border-color: var(--slate-4);
   background-color: #fff;
   padding: var(--pad-m);
   border-radius: var(--br-s);
+  height: 100%;
 }
 
 .layout-sidebar.invert.wide {
+  height: 100vh;
+  padding: var(--pad-m);
+  row-gap: 0;
+  grid-template-rows: auto 1fr;
   grid-template-areas:
     "header header"
     "main aside";
@@ -165,6 +172,18 @@ header {
   }
   aside {
     grid-area: aside;
+  }
+}
+
+.participant {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--slate-3);
+  padding: var(--pad-xs);
+
+  &:first-child {
+    border-top: 1px solid var(--slate-3);
   }
 }
 </style>

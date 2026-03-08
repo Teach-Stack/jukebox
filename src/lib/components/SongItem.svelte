@@ -36,7 +36,7 @@ function getDisabledTitle(): string {
 </script>
 
 <article>
-  <img src={song.thumbnailUrl} alt="{song.title} thumbnail" width="64">
+  <img src={song.thumbnailUrl} alt="{song.title} thumbnail" width="96">
   <div class="content">
     <h4>{song.title}</h4>
     <p>{song.artist}</p>
