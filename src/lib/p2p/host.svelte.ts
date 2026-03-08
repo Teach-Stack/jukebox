@@ -118,6 +118,11 @@ export class P2PHost {
     this.broadcastQueue()
   }
 
+  notifyQueueChange() {
+    logger.debug('Queue change notification triggered')
+    this.broadcastQueue()
+  }
+
   kickParticipant(peerId: string) {
     logger.debug('Kicking participant:', peerId)
 
@@ -250,7 +255,7 @@ export class P2PHost {
       'Broadcasting current queue. Client:',
       clientId ? clientId : 'all',
     )
-    const songs = Songs.find({}).map((song) => ({
+    const songs = Songs.find({ status: 'queued' }).map((song) => ({
       ...song,
       score: song.score,
       addedBy: song.addedBy,
