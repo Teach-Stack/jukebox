@@ -79,21 +79,6 @@ function handlePlayerError(error: string) {
 
 <section>
   {#if currentSong}
-    <div>
-      <img
-        src={currentSong.thumbnailUrl}
-        alt={currentSong.title}
-        width="120"
-        height="90"
-      >
-      <div>
-        <strong>{currentSong.title}</strong>
-        <p>{currentSong.artist}</p>
-        <p>Added by: {currentSong.addedBy?.name ?? 'Unknown'}</p>
-      </div>
-      <button type="button" onclick={skipSong}>Skip Song</button>
-    </div>
-
     <YouTubePlayer
       bind:this={playerRef}
       youtubeId={currentSong.youtubeId}
