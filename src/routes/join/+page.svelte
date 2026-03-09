@@ -115,67 +115,89 @@ function isOwnSong(song: (typeof p2p.songs)[number]): boolean {
 }
 </script>
 
-<h3>Join Jukebox</h3>
+<div class="layout-readable center stack">
+  <header>
+    <h4>Jukebox</h4>
+  </header>
 
-<pre>
-  Peer Status      : {p2p.peerStatus}
-  Peer ID          : {p2p.peerId}
-  Connection Status: {p2p.connectionStatus}
-</pre>
-
-{#if p2p.kicked}
-  <p>You have been removed from the room.</p>
-{/if}
-
-{#if p2p.peerStatus === 'error'}
-  <p>Error: {p2p.peerError}</p>
-{/if}
-
-{#if p2p.connectionStatus === 'connected'}
-  <p>Connected to Room {p2p.hostId}</p>
-
-  <section>
-    <button
-      type="button"
-      onclick={() => p2p.submitSong(MOCK_SONGS[Math.floor(Math.random() * MOCK_SONGS.length)])}
-    >
-      Submit Mock Song
-    </button>
-  </section>
-
-  <section>
-    <h4>Current Queue</h4>
-    {#if p2p.songs.length === 0}
-      <p>No songs in queue yet</p>
+  <main class="stack">
+    {#if p2p.connectionStatus === 'connected'}
+      <h4>Connected to room: {p2p.hostId}</h4>
     {:else}
-      <ol>
-        {#each p2p.songs as song (song.id)}
-          <li>
-            <SongItem
-              {song}
-              onUpvote={handleUpvote}
-              onDownvote={handleDownvote}
-              currentUserVote={getCurrentUserVote(song.id)}
-              isOwnSong={isOwnSong(song)}
-              canVote={song.status === 'queued'}
-            />
-          </li>
-        {/each}
-      </ol>
+      <h4>Join Room</h4>
     {/if}
-  </section>
-{:else}
-  <form onsubmit={(e) => { e.preventDefault(); p2p.connect(); }}>
-    <label>
-      Room code
-      <input type="text" placeholder="Room code" bind:value={p2p.hostId}>
-    </label>
-    <label>
-      Your name
-      <input type="text" placeholder="Your name" bind:value={p2p.name}>
-    </label>
-    <button type="submit" disabled={p2p.peerStatus !== 'ready'}>
-      Join Room
-    </button>
-  </form>
-{/if}
+
+    {#if p2p.kicked}
+      <p class="alert warning">You have been removed from the room.</p>
+    {/if}
+
+    {#if p2p.peerStatus === 'error'}
+      <p class="alert error">Error: {p2p.peerError}</p>
+    {/if}
+
+    {#if p2p.connectionStatus === 'connected'}
+      <section>
+        <button
+          type="button"
+          class="sm"
+          onclick={() => p2p.submitSong(MOCK_SONGS[Math.floor(Math.random() * MOCK_SONGS.length)])}
+        >
+          Submit Mock Song
+        </button>
+      </section>
+
+      <section class="stack">
+        <h5>Queue</h5>
+        {#if p2p.songs.length === 0}
+          <p>No songs in the queue yet.</p>
+        {:else}
+          <ol class="no-list stack">
+            {#each p2p.songs as song (song.id)}
+              <li>
+                <SongItem
+                  {song}
+                  onUpvote={handleUpvote}
+                  onDownvote={handleDownvote}
+                  currentUserVote={getCurrentUserVote(song.id)}
+                  isOwnSong={isOwnSong(song)}
+                  canVote={song.status === 'queued'}
+                />
+              </li>
+            {/each}
+          </ol>
+        {/if}
+      </section>
+    {:else}
+      <form
+        class="stack"
+        onsubmit={(e) => { e.preventDefault(); p2p.connect(); }}
+      >
+        <label>
+          Room code
+          <input type="text" placeholder="Room code" bind:value={p2p.hostId}>
+        </label>
+        <label>
+          Your name
+          <input type="text" placeholder="Your name" bind:value={p2p.name}>
+        </label>
+        <button
+          type="submit"
+          class="primary block"
+          disabled={p2p.peerStatus !== 'ready'}
+        >
+          Join Room
+        </button>
+      </form>
+    {/if}
+  </main>
+</div>
+
+<style>
+main {
+  border: var(--border-1);
+  border-color: var(--slate-4);
+  background-color: #fff;
+  padding: var(--pad-m);
+  border-radius: var(--br-s);
+}
+</style>
