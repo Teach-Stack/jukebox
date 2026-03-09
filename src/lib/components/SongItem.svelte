@@ -88,6 +88,7 @@ article {
   border-radius: var(--br-s);
   border: 1px solid var(--slate-3);
   align-items: center;
+  background-color: var(--slate-0);
 }
 
 img {
