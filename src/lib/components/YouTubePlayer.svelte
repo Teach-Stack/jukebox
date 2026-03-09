@@ -1,8 +1,5 @@
 <script module lang="ts">
-/// <reference types="@types/youtube" />
-
 import { createLogger } from '$lib'
-import type { SongInQueue } from '$lib/p2p/messages'
 
 const logger = createLogger('YouTubePlayer')
 
@@ -322,6 +319,11 @@ export class YouTubePlayerState {
 </script>
 
 <script lang="ts">
+import type { SongInQueue } from '$lib/p2p/messages'
+
+import Pause from '~icons/teenyicons/pause-outline'
+import Play from '~icons/teenyicons/play-outline'
+
 interface Props {
   onEnded?: () => void
   onSkip?: () => void
@@ -432,7 +434,11 @@ function togglePlayback() {
           onclick={togglePlayback}
           aria-label={playerState.playerState === 'playing' ? 'Pause' : 'Play'}
         >
-          {playerState.playerState === 'playing' ? '⏸' : '▶'}
+          {#if playerState.playerState === 'playing'}
+            <Pause />
+          {:else}
+            <Play />
+          {/if}
         </button>
         <div class="progress">
           <input
