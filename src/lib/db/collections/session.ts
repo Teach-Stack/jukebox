@@ -2,8 +2,17 @@ import { type } from 'arktype'
 
 import { BaseEntity, Collection } from '../helper.svelte'
 
+const DefaultVideoType = type({
+  youtubeId: 'string',
+  title: 'string',
+  artist: 'string',
+  thumbnailUrl: 'string',
+  duration: 'number',
+})
+
 export const SessionType = type({
   id: 'string',
+  'defaultVideo?': DefaultVideoType,
 })
 
 export type SessionType = typeof SessionType.infer

@@ -1,11 +1,12 @@
 <script lang="ts">
 import QRCode from 'qrcode'
 
+import SettingsDialog from '$lib/components/SettingsDialog.svelte'
 import SongItem from '$lib/components/SongItem.svelte'
 import YouTubePlayer from '$lib/components/YouTubePlayer.svelte'
-import { Participants, Songs } from '$lib/db'
+import { Participants, Sessions, Songs } from '$lib/db'
 import { P2PHost } from '$lib/p2p'
-
+import SettingsOutline from '~icons/teenyicons/cog-outline'
 import GithubOutline from '~icons/teenyicons/github-outline'
 
 // Generate a short unique room ID (6 alphanumeric chars)
@@ -25,6 +26,16 @@ const p2p = new P2PHost(roomId)
 let playerRef: YouTubePlayer | null = $state(null)
 let playbackStarted = $state(false)
 let qrSvg = $state('')
+let settingsDialogRef: SettingsDialog | undefined = $state(undefined)
+let isPlayingDefaultVideo = $state(false)
+
+// Initialize session on mount
+$effect(() => {
+  let session = Sessions.findOne({ id: roomId })
+  if (!session) {
+    Sessions.insert({ id: roomId })
+  }
+})
 
 // Build the join URL and generate QR code (client-side only)
 $effect(() => {
@@ -63,10 +74,55 @@ let nextSong = $derived(
 
 let participants = $derived(Participants.find({}).fetch())
 
+// Get session data
+let session = $derived(Sessions.findOne({ id: roomId }))
+let defaultVideo = $derived(session?.defaultVideo)
+
+// Combined song for player (current song or default video as a song object)
+let songToPlay = $derived.by(() => {
+  if (currentSong) {
+    return currentSong
+  }
+  if (isPlayingDefaultVideo && defaultVideo) {
+    // Convert default video to song-like object for the player
+    return {
+      id: 'default-video',
+      youtubeId: defaultVideo.youtubeId,
+      title: defaultVideo.title,
+      artist: defaultVideo.artist,
+      thumbnailUrl: defaultVideo.thumbnailUrl,
+      duration: defaultVideo.duration,
+      addedById: 'system',
+      addedAt: Date.now(),
+      status: 'playing' as const,
+      score: 0,
+    }
+  }
+  return null
+})
+
 // Auto-play when songs are added after queue was empty
 $effect(() => {
   if (playbackStarted && !currentSong && nextSong) {
+    // If default video is playing and a real song is queued, interrupt it
+    if (isPlayingDefaultVideo) {
+      isPlayingDefaultVideo = false
+    }
     playNext()
+  }
+})
+
+// Auto-play default video when queue is empty and no song is playing
+$effect(() => {
+  if (
+    playbackStarted &&
+    !currentSong &&
+    !nextSong &&
+    defaultVideo &&
+    !isPlayingDefaultVideo
+  ) {
+    // Queue is empty, start playing default video
+    isPlayingDefaultVideo = true
   }
 })
 
@@ -85,7 +141,21 @@ function playNext() {
 }
 
 function handleSongEnded() {
-  playNext()
+  if (isPlayingDefaultVideo) {
+    // Default video ended - check if queue has songs
+    if (nextSong) {
+      // Queue has songs now, play them
+      isPlayingDefaultVideo = false
+      playNext()
+    } else {
+      // Queue still empty, keep default video flag to trigger replay via reactive songToPlay
+      // The YouTube player will reload when songToPlay updates
+      isPlayingDefaultVideo = true
+    }
+  } else {
+    // Regular song ended, play next
+    playNext()
+  }
 }
 
 function skipSong() {
@@ -112,7 +182,17 @@ function handlePlayerError(error: string) {
 
   <aside>
     <section class="join-section stack">
-      <h6>Join this room</h6>
+      <div class="section-header">
+        <h6>Join this room</h6>
+        <button
+          type="button"
+          class="sm"
+          onclick={() => settingsDialogRef?.open()}
+          aria-label="Open settings"
+        >
+          <SettingsOutline />
+        </button>
+      </div>
 
       {#if qrSvg}
         <div class="qr-wrapper">
@@ -160,10 +240,10 @@ function handlePlayerError(error: string) {
   <main class="stack">
     <section>
       <h4>Now Playing</h4>
-      {#if currentSong}
+      {#if songToPlay}
         <YouTubePlayer
           bind:this={playerRef}
-          song={currentSong}
+          song={songToPlay}
           onEnded={handleSongEnded}
           onError={handlePlayerError}
           onSkip={skipSong}
@@ -171,6 +251,11 @@ function handlePlayerError(error: string) {
       {:else if nextSong}
         <p>No song currently playing.</p>
         <button type="button" onclick={playNext}>Start The Queue</button>
+      {:else if defaultVideo}
+        <p>No song currently playing.</p>
+        <button type="button" onclick={() => { playbackStarted = true }}>
+          Start Playing Default Video
+        </button>
       {/if}
     </section>
 
@@ -192,6 +277,8 @@ function handlePlayerError(error: string) {
     </section>
   </main>
 </div>
+
+<SettingsDialog bind:this={settingsDialogRef} sessionId={roomId} />
 
 <style>
 header {
@@ -305,6 +392,18 @@ hr {
 }
 
 /* Participants */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--pad-s);
+}
+
+.section-header h6 {
+  margin: 0;
+  flex: 1;
+}
+
 .participant {
   display: flex;
   justify-content: space-between;
