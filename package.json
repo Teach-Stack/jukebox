@@ -34,5 +34,6 @@
     "consola": "^3.4.2",
     "peerjs": "^1.5.5",
     "qrcode": "^1.5.4"
-  }
+  },
+  "packageManager": "pnpm@10.31.0"
 }
