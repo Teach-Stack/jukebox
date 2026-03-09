@@ -67,7 +67,7 @@ export class P2PClient {
   connect() {
     logger.debug('Attempting to connect to host with ID:', this.hostId)
     this.connectionStatus = 'connecting'
-    this.connection = this.peer.connect(this.hostId)
+    this.connection = this.peer.connect(`org-teachstack-jukebox-${this.hostId}`)
 
     this.connection.on('open', () => {
       logger.success('Connection opened with host:', this.hostId)

@@ -24,7 +24,7 @@ export class P2PHost {
   constructor(id: string) {
     logger.start('Initializing P2PHost with ID:', id)
 
-    this.peer = new Peer(id, { debug: 2 })
+    this.peer = new Peer(`org-teachstack-jukebox-${id}`, { debug: 2 })
 
     this.peer.on('open', () => {
       logger.ready('Peer opened with ID:', this.peer.id)

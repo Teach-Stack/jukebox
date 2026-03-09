@@ -4,7 +4,6 @@ import { BaseEntity, Collection } from '../helper.svelte'
 
 export const SessionType = type({
   id: 'string',
-  name: 'string',
 })
 
 export type SessionType = typeof SessionType.infer
