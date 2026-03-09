@@ -1,6 +1,7 @@
 <script lang="ts">
 import { page } from '$app/stores'
 import SongItem from '$lib/components/SongItem.svelte'
+import SongSearch from '$lib/components/SongSearch.svelte'
 import { getVote, saveVote } from '$lib/helpers/votes'
 import { P2PClient } from '$lib/p2p'
 
@@ -13,86 +14,6 @@ $effect(() => {
     p2p.hostId = roomParam
   }
 })
-
-const MOCK_SONGS = [
-  {
-    youtubeId: 'dQw4w9WgXcQ',
-    title: 'Never Gonna Give You Up',
-    artist: 'Rick Astley',
-    thumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/default.jpg',
-    duration: 213,
-  },
-  {
-    youtubeId: '9bZkp7q19f0',
-    title: 'Gangnam Style',
-    artist: 'PSY',
-    duration: 252,
-    thumbnailUrl: 'https://img.youtube.com/vi/9bZkp7q19f0/default.jpg',
-  },
-  {
-    youtubeId: 'kJQP7kiw5Fk',
-    title: 'Despacito',
-    artist: 'Luis Fonsi ft. Daddy Yankee',
-    duration: 228,
-    thumbnailUrl: 'https://img.youtube.com/vi/kJQP7kiw5Fk/default.jpg',
-  },
-  {
-    youtubeId: 'fJ9rUzIMcZQ',
-    title: 'Bohemian Rhapsody',
-    artist: 'Queen',
-    duration: 367,
-    thumbnailUrl: 'https://img.youtube.com/vi/fJ9rUzIMcZQ/default.jpg',
-  },
-  {
-    youtubeId: 'OPf0YbXqDm0',
-    title: 'Uptown Funk',
-    artist: 'Mark Ronson ft. Bruno Mars',
-    duration: 269,
-    thumbnailUrl: 'https://img.youtube.com/vi/OPf0YbXqDm0/default.jpg',
-  },
-  {
-    youtubeId: 'RgKAFK5djSk',
-    title: 'Waka Waka',
-    artist: 'Shakira',
-    duration: 214,
-    thumbnailUrl: 'https://img.youtube.com/vi/RgKAFK5djSk/default.jpg',
-  },
-  {
-    youtubeId: 'hTWKbfoikeg',
-    title: 'Smells Like Teen Spirit',
-    artist: 'Nirvana',
-    duration: 301,
-    thumbnailUrl: 'https://img.youtube.com/vi/hTWKbfoikeg/default.jpg',
-  },
-  {
-    youtubeId: 'JGwWNGJdvx8',
-    title: 'Shape of You',
-    artist: 'Ed Sheeran',
-    duration: 233,
-    thumbnailUrl: 'https://img.youtube.com/vi/JGwWNGJdvx8/default.jpg',
-  },
-  {
-    youtubeId: 'CevxZvSJLk8',
-    title: 'Roar',
-    artist: 'Katy Perry',
-    duration: 223,
-    thumbnailUrl: 'https://img.youtube.com/vi/CevxZvSJLk8/default.jpg',
-  },
-  {
-    youtubeId: 'lDK9QqIzhwk',
-    title: "Livin' On A Prayer",
-    artist: 'Bon Jovi',
-    duration: 249,
-    thumbnailUrl: 'https://img.youtube.com/vi/lDK9QqIzhwk/default.jpg',
-  },
-  {
-    youtubeId: 'pAgnJDJN4VA',
-    title: 'All Star',
-    artist: 'Smash Mouth',
-    duration: 200,
-    thumbnailUrl: 'https://img.youtube.com/vi/pAgnJDJN4VA/default.jpg',
-  },
-]
 
 function handleUpvote(songId: string) {
   p2p.castVote(songId, 'up')
@@ -136,14 +57,9 @@ function isOwnSong(song: (typeof p2p.songs)[number]): boolean {
     {/if}
 
     {#if p2p.connectionStatus === 'connected'}
-      <section>
-        <button
-          type="button"
-          class="sm"
-          onclick={() => p2p.submitSong(MOCK_SONGS[Math.floor(Math.random() * MOCK_SONGS.length)])}
-        >
-          Submit Mock Song
-        </button>
+      <section class="stack">
+        <h5>Add Songs</h5>
+        <SongSearch onSongSelect={(song) => p2p.submitSong(song)} />
       </section>
 
       <section class="stack">

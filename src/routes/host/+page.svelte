@@ -7,7 +7,12 @@ import { P2PHost } from '$lib/p2p'
 
 // Generate a short unique room ID (6 alphanumeric chars)
 function generateRoomId(): string {
-  return Math.random().toString(36).slice(2, 8).toUpperCase()
+  if (sessionStorage.getItem('jukebox:room-id')) {
+    return sessionStorage.getItem('jukebox:room-id') as string
+  }
+  let newId = Math.random().toString(36).slice(2, 8).toUpperCase()
+  sessionStorage.setItem('jukebox:room-id', newId)
+  return newId
 }
 
 let roomId = generateRoomId()
@@ -154,9 +159,7 @@ function handlePlayerError(error: string) {
         />
       {:else if nextSong}
         <p>No song currently playing.</p>
-        <button type="button" onclick={playNext}>
-          Start Playing: {nextSong.title}
-        </button>
+        <button type="button" onclick={playNext}>Start The Queue</button>
       {/if}
     </section>
 
