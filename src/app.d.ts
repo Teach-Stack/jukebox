@@ -1,5 +1,7 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
+import 'unplugin-icons/types/svelte'
+
 /// <reference types="@types/youtube" />
 
 declare global {
@@ -21,5 +23,3 @@ declare global {
     YT?: typeof YT & { loaded?: number }
   }
 }
-
-export {}

@@ -1,15 +1,18 @@
 <script lang="ts">
-import { page } from '$app/stores'
+import { page } from '$app/state'
+
 import SongItem from '$lib/components/SongItem.svelte'
 import SongSearch from '$lib/components/SongSearch.svelte'
 import { getVote, saveVote } from '$lib/helpers/votes'
 import { P2PClient } from '$lib/p2p'
 
+import GithubOutline from '~icons/teenyicons/github-outline'
+
 const p2p = new P2PClient()
 
 // Pre-populate room code from ?room= URL param
 $effect(() => {
-  const roomParam = $page.url.searchParams.get('room')
+  const roomParam = page.url.searchParams.get('room')
   if (roomParam && !p2p.hostId) {
     p2p.hostId = roomParam
   }
@@ -39,6 +42,14 @@ function isOwnSong(song: (typeof p2p.songs)[number]): boolean {
 <div class="layout-readable center stack">
   <header>
     <h4>Jukebox</h4>
+    <a
+      href="https://github.com/Teach-Stack/jukebox"
+      target="_blank"
+      class="btn"
+      aria-label="View source on GitHub"
+    >
+      <GithubOutline />
+    </a>
   </header>
 
   <main class="stack">
@@ -109,6 +120,13 @@ function isOwnSong(song: (typeof p2p.songs)[number]): boolean {
 </div>
 
 <style>
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--pad-m);
+}
+
 main {
   border: var(--border-1);
   border-color: var(--slate-4);

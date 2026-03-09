@@ -1,9 +1,12 @@
 <script lang="ts">
 import QRCode from 'qrcode'
+
 import SongItem from '$lib/components/SongItem.svelte'
 import YouTubePlayer from '$lib/components/YouTubePlayer.svelte'
 import { Participants, Songs } from '$lib/db'
 import { P2PHost } from '$lib/p2p'
+
+import GithubOutline from '~icons/teenyicons/github-outline'
 
 // Generate a short unique room ID (6 alphanumeric chars)
 function generateRoomId(): string {
@@ -97,6 +100,14 @@ function handlePlayerError(error: string) {
 <div class="layout-readable layout-sidebar invert wide">
   <header>
     <h4>Jukebox</h4>
+    <a
+      href="https://github.com/Teach-Stack/jukebox"
+      target="_blank"
+      class="btn"
+      aria-label="View source on GitHub"
+    >
+      <GithubOutline />
+    </a>
   </header>
 
   <aside>
@@ -183,6 +194,13 @@ function handlePlayerError(error: string) {
 </div>
 
 <style>
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--pad-m);
+}
+
 aside,
 main {
   border: var(--border-1);

@@ -23,6 +23,14 @@
       <a href="/join" class="btn block">Join a Room</a>
     </section>
   </div>
+  <a
+    href="https://github.com/Teach-Stack/jukebox"
+    target="_blank"
+    class="github-link"
+    aria-label="View source on GitHub"
+  >
+    Check out the code on GitHub
+  </a>
 </div>
 
 <style>
@@ -54,5 +62,14 @@
 
 .card-body {
   flex: 1;
+}
+
+.github-link {
+  color: var(--slate-6);
+  text-align: center;
+
+  &:hover {
+    color: var(--slate-8);
+  }
 }
 </style>
