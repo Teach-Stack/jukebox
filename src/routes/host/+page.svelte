@@ -28,6 +28,7 @@ let playbackStarted = $state(false)
 let qrSvg = $state('')
 let settingsDialogRef: SettingsDialog | undefined = $state(undefined)
 let isPlayingDefaultVideo = $state(false)
+let defaultVideoPlayCount = $state(0) // Track plays to force reactivity
 
 // Initialize session on mount
 $effect(() => {
@@ -85,8 +86,9 @@ let songToPlay = $derived.by(() => {
   }
   if (isPlayingDefaultVideo && defaultVideo) {
     // Convert default video to song-like object for the player
-    return {
-      id: 'default-video',
+    // Include playCount to force re-render when looping
+    const song = {
+      id: `default-video-${defaultVideoPlayCount}`,
       youtubeId: defaultVideo.youtubeId,
       title: defaultVideo.title,
       artist: defaultVideo.artist,
@@ -97,6 +99,8 @@ let songToPlay = $derived.by(() => {
       status: 'playing' as const,
       score: 0,
     }
+    console.log('songToPlay updated:', song.id)
+    return song
   }
   return null
 })
@@ -122,7 +126,9 @@ $effect(() => {
     !isPlayingDefaultVideo
   ) {
     // Queue is empty, start playing default video
+    console.log('Starting default video playback')
     isPlayingDefaultVideo = true
+    defaultVideoPlayCount = 0
   }
 })
 
@@ -141,19 +147,31 @@ function playNext() {
 }
 
 function handleSongEnded() {
+  console.log('handleSongEnded called', {
+    isPlayingDefaultVideo,
+    hasNextSong: !!nextSong,
+    currentPlayCount: defaultVideoPlayCount,
+  })
+
   if (isPlayingDefaultVideo) {
     // Default video ended - check if queue has songs
     if (nextSong) {
       // Queue has songs now, play them
+      console.log('Switching from default video to queued song')
       isPlayingDefaultVideo = false
+      defaultVideoPlayCount = 0
       playNext()
     } else {
-      // Queue still empty, keep default video flag to trigger replay via reactive songToPlay
-      // The YouTube player will reload when songToPlay updates
-      isPlayingDefaultVideo = true
+      // Queue still empty, increment counter to trigger reload (loop)
+      console.log(
+        'Looping default video, incrementing counter to',
+        defaultVideoPlayCount + 1,
+      )
+      defaultVideoPlayCount++
     }
   } else {
     // Regular song ended, play next
+    console.log('Regular song ended, playing next')
     playNext()
   }
 }
@@ -241,13 +259,15 @@ function handlePlayerError(error: string) {
     <section>
       <h4>Now Playing</h4>
       {#if songToPlay}
-        <YouTubePlayer
-          bind:this={playerRef}
-          song={songToPlay}
-          onEnded={handleSongEnded}
-          onError={handlePlayerError}
-          onSkip={skipSong}
-        />
+        {#key songToPlay.id}
+          <YouTubePlayer
+            bind:this={playerRef}
+            song={songToPlay}
+            onEnded={handleSongEnded}
+            onError={handlePlayerError}
+            onSkip={skipSong}
+          />
+        {/key}
       {:else if nextSong}
         <p>No song currently playing.</p>
         <button type="button" onclick={playNext}>Start The Queue</button>
