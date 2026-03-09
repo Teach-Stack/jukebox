@@ -1,9 +1,18 @@
 <script lang="ts">
+import { page } from '$app/stores'
 import SongItem from '$lib/components/SongItem.svelte'
 import { getVote, saveVote } from '$lib/helpers/votes'
 import { P2PClient } from '$lib/p2p'
 
 const p2p = new P2PClient()
+
+// Pre-populate room code from ?room= URL param
+$effect(() => {
+  const roomParam = $page.url.searchParams.get('room')
+  if (roomParam && !p2p.hostId) {
+    p2p.hostId = roomParam
+  }
+})
 
 const MOCK_SONGS = [
   {
