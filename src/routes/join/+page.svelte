@@ -33,7 +33,6 @@ function getCurrentUserVote(songId: string): 'up' | 'down' | null {
 }
 
 function isOwnSong(song: (typeof p2p.songs)[number]): boolean {
-  // Type system says addedById doesn't exist on SongInQueue but it's actually there at runtime
   const songWithId = song as typeof song & { addedById?: string }
   return songWithId.addedById === p2p.peerId
 }

@@ -2,12 +2,15 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "jukebox",
   "compatibility_date": "2025-12-10",
+  "main": "./worker/index.js",
   "observability": {
     "enabled": true
   },
   "assets": {
     "directory": "./build/",
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
   },
   "routes": [
     {

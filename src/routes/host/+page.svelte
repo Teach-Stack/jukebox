@@ -31,11 +31,11 @@ let isPlayingDefaultVideo = $state(false)
 let defaultVideoPlayCount = $state(0) // Track plays to force reactivity
 
 // Initialize session on mount
+// Wait for IndexedDB load, otherwise we re-insert a persisted session and the IDB `add` fails
 $effect(() => {
-  let session = Sessions.findOne({ id: roomId })
-  if (!session) {
-    Sessions.insert({ id: roomId })
-  }
+  Sessions.isReady().then(() => {
+    if (!Sessions.findOne({ id: roomId })) Sessions.insert({ id: roomId })
+  })
 })
 
 // Build the join URL and generate QR code (client-side only)

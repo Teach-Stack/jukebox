@@ -9,6 +9,7 @@ import {
 
 import { createLogger } from '$lib'
 
+import { peerOptions } from './ice'
 import { type MessageType, P2PMessage, type SongInQueue } from './messages'
 
 type ConnectionStatus = 'disconnected' | 'connected' | 'connecting' | 'error'
@@ -42,12 +43,12 @@ export class P2PClient {
         'Restoring previous peer ID from session storage:',
         this.peerId,
       )
-      this.peer = new Peer(this.peerId, { debug: 2 })
+      this.peer = new Peer(this.peerId, peerOptions)
     } else {
       logger.debug(
         'No previous peer ID found in session storage, creating new peer',
       )
-      this.peer = new Peer({ debug: 2 })
+      this.peer = new Peer(peerOptions)
     }
 
     this.peer.on('open', (id) => {

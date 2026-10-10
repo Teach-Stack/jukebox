@@ -4,6 +4,7 @@ import { type DataConnection, Peer } from 'peerjs'
 import { createLogger } from '$lib'
 import { Participants, Songs, Votes } from '$lib/db'
 
+import { peerOptions } from './ice'
 import { type MessageType, P2PMessage, type SubmittedSong } from './messages'
 
 type ConnectionStatus = 'disconnected' | 'ready' | 'error'
@@ -24,7 +25,7 @@ export class P2PHost {
   constructor(id: string) {
     logger.start('Initializing P2PHost with ID:', id)
 
-    this.peer = new Peer(`org-teachstack-jukebox-${id}`, { debug: 2 })
+    this.peer = new Peer(`org-teachstack-jukebox-${id}`, peerOptions)
 
     this.peer.on('open', () => {
       logger.ready('Peer opened with ID:', this.peer.id)

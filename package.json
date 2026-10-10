@@ -12,30 +12,30 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.6",
-    "@sveltejs/adapter-static": "^3.0.10",
-    "@sveltejs/kit": "^2.53.4",
-    "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@biomejs/biome": "^2.5.15",
+    "@sveltejs/adapter-static": "^4.0.0",
+    "@sveltejs/kit": "^3.0.1",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@types/qrcode": "^1.5.6",
-    "@types/youtube": "^0.1.2",
-    "svelte": "^5.53.7",
-    "svelte-check": "^4.4.4",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "wrangler": "^4.71.0"
+    "@types/youtube": "^0.3.0",
+    "svelte": "^5.57.2",
+    "svelte-check": "^4.7.6",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "wrangler": "^4.149.0"
   },
   "dependencies": {
-    "@fontsource-variable/space-grotesk": "^5.2.10",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
     "@iconify-json/teenyicons": "^1.2.2",
-    "@signaldb/core": "^1.7.2",
+    "@signaldb/core": "^1.8.1",
     "@signaldb/indexeddb": "^1.1.0",
     "@signaldb/svelte": "^1.1.1",
     "@teach-stack/css": "^0.1.4",
-    "arktype": "^2.2.0",
+    "arktype": "^2.2.8",
     "consola": "^3.4.2",
     "peerjs": "^1.5.5",
     "qrcode": "^1.5.4",
     "unplugin-icons": "^23.0.1"
   },
-  "packageManager": "pnpm@10.31.0"
+  "packageManager": "pnpm@12.10.1"
 }
