@@ -1,11 +1,11 @@
 <script lang="ts">
-import { formatDuration } from '$lib/helpers/format'
+import { formatDuration } from '#lib/helpers/format.ts'
 import {
   searchYouTube,
   toSubmittedSong,
   type YouTubeSearchResult,
-} from '$lib/helpers/youtube'
-import type { SubmittedSong } from '$lib/p2p/messages'
+} from '#lib/helpers/youtube.ts'
+import type { SubmittedSong } from '#lib/p2p/messages.ts'
 
 interface Props {
   onSongSelect: (song: SubmittedSong) => void

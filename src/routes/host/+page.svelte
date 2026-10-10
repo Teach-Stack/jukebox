@@ -1,11 +1,11 @@
 <script lang="ts">
 import QRCode from 'qrcode'
 
-import SettingsDialog from '$lib/components/SettingsDialog.svelte'
-import SongItem from '$lib/components/SongItem.svelte'
-import YouTubePlayer from '$lib/components/YouTubePlayer.svelte'
-import { Participants, Sessions, Songs } from '$lib/db'
-import { P2PHost } from '$lib/p2p'
+import SettingsDialog from '#lib/components/SettingsDialog.svelte'
+import SongItem from '#lib/components/SongItem.svelte'
+import YouTubePlayer from '#lib/components/YouTubePlayer.svelte'
+import { Participants, Sessions, Songs } from '#lib/db/index.ts'
+import { P2PHost } from '#lib/p2p/index.ts'
 import SettingsOutline from '~icons/teenyicons/cog-outline'
 import GithubOutline from '~icons/teenyicons/github-outline'
 
@@ -273,7 +273,12 @@ function handlePlayerError(error: string) {
         <button type="button" onclick={playNext}>Start The Queue</button>
       {:else if defaultVideo}
         <p>No song currently playing.</p>
-        <button type="button" onclick={() => { playbackStarted = true }}>
+        <button
+          type="button"
+          onclick={() => {
+            playbackStarted = true
+          }}
+        >
           Start Playing Default Video
         </button>
       {/if}

@@ -1,10 +1,9 @@
 <script lang="ts">
+import SongItem from '#lib/components/SongItem.svelte'
+import SongSearch from '#lib/components/SongSearch.svelte'
+import { getVote, saveVote } from '#lib/helpers/votes.ts'
+import { P2PClient } from '#lib/p2p/index.ts'
 import { page } from '$app/state'
-
-import SongItem from '$lib/components/SongItem.svelte'
-import SongSearch from '$lib/components/SongSearch.svelte'
-import { getVote, saveVote } from '$lib/helpers/votes'
-import { P2PClient } from '$lib/p2p'
 
 import GithubOutline from '~icons/teenyicons/github-outline'
 
@@ -96,7 +95,10 @@ function isOwnSong(song: (typeof p2p.songs)[number]): boolean {
     {:else}
       <form
         class="stack"
-        onsubmit={(e) => { e.preventDefault(); p2p.connect(); }}
+        onsubmit={(e) => {
+          e.preventDefault()
+          p2p.connect()
+        }}
       >
         <label>
           Room code

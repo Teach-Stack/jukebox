@@ -1,7 +1,10 @@
 <script lang="ts">
-import { Sessions } from '$lib/db'
-import { formatDuration } from '$lib/helpers/format'
-import { searchYouTube, type YouTubeSearchResult } from '$lib/helpers/youtube'
+import { Sessions } from '#lib/db/index.ts'
+import { formatDuration } from '#lib/helpers/format.ts'
+import {
+  searchYouTube,
+  type YouTubeSearchResult,
+} from '#lib/helpers/youtube.ts'
 
 import CloseOutline from '~icons/teenyicons/x-outline'
 

@@ -1,6 +1,6 @@
 import { createConsola } from 'consola'
 
-import { dev } from '$app/environment'
+import { dev } from '$app/env'
 
 const logLevel = dev
   ? 5

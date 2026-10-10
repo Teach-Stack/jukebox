@@ -1,6 +1,6 @@
 <script lang="ts">
-import { formatDuration } from '$lib/helpers/format'
-import type { SongInQueue } from '$lib/p2p/messages'
+import { formatDuration } from '#lib/helpers/format.ts'
+import type { SongInQueue } from '#lib/p2p/messages.ts'
 
 interface Props {
   onRemove?: () => void

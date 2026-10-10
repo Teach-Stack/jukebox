@@ -1,5 +1,5 @@
-import { env } from '$env/dynamic/public'
-import type { SubmittedSong } from '$lib/p2p/messages'
+import type { SubmittedSong } from '#lib/p2p/messages.ts'
+import { PUBLIC_YOUTUBE_API_KEY } from '$app/env/public'
 
 export interface YouTubeSearchResult {
   youtubeId: string
@@ -65,7 +65,7 @@ export function parseDuration(isoDuration: string): number {
 export async function searchYouTube(
   query: string,
 ): Promise<YouTubeSearchResult[]> {
-  const apiKey = env.PUBLIC_YOUTUBE_API_KEY
+  const apiKey = PUBLIC_YOUTUBE_API_KEY
 
   if (!apiKey) {
     throw new Error(

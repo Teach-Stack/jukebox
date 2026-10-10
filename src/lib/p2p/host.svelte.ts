@@ -1,8 +1,8 @@
 import { type } from 'arktype'
 import { type DataConnection, Peer } from 'peerjs'
 
-import { createLogger } from '$lib'
-import { Participants, Songs, Votes } from '$lib/db'
+import { createLogger } from '#lib'
+import { Participants, Songs, Votes } from '#lib/db/index.ts'
 
 import { peerOptions } from './ice'
 import { type MessageType, P2PMessage, type SubmittedSong } from './messages'

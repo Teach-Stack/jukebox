@@ -1,5 +1,5 @@
 import { type } from 'arktype'
-import { ParticipantType, SongType } from '$lib/db'
+import { ParticipantType, SongType } from '#lib/db/index.ts'
 
 const PeerNameMessage = type({
   type: "'PEER_NAME'",

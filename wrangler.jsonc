@@ -2,15 +2,14 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "jukebox",
   "compatibility_date": "2025-12-10",
-  "main": "./worker/index.js",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": ".svelte-kit/cloudflare/_worker.js",
   "observability": {
     "enabled": true
   },
   "assets": {
-    "directory": "./build/",
-    "not_found_handling": "single-page-application",
-    "binding": "ASSETS",
-    "run_worker_first": ["/api/*"]
+    "directory": ".svelte-kit/cloudflare",
+    "binding": "ASSETS"
   },
   "routes": [
     {

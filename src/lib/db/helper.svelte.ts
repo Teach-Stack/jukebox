@@ -20,8 +20,8 @@ export class Collection<
   T extends BaseItem<I> = BaseItem,
   U = T,
   I extends IDBValidKey = IDBValidKey,
-> extends CoreCollection<T, I, U> {
-  constructor(options: CollectionOptions<T, I, U>) {
+> extends CoreCollection<T, I, T, U> {
+  constructor(options: CollectionOptions<T, I, T, U>) {
     if (options.name === undefined)
       throw new Error('Collection name is required')
 

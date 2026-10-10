@@ -7,7 +7,7 @@ import {
   type PeerErrorType,
 } from 'peerjs'
 
-import { createLogger } from '$lib'
+import { createLogger } from '#lib'
 
 import { peerOptions } from './ice'
 import { type MessageType, P2PMessage, type SongInQueue } from './messages'

@@ -1,5 +1,5 @@
 <script module lang="ts">
-import { createLogger } from '$lib'
+import { createLogger } from '#lib'
 
 const logger = createLogger('YouTubePlayer')
 
@@ -319,7 +319,7 @@ export class YouTubePlayerState {
 </script>
 
 <script lang="ts">
-import type { SongInQueue } from '$lib/p2p/messages'
+import type { SongInQueue } from '#lib/p2p/messages.ts'
 
 import Pause from '~icons/teenyicons/pause-outline'
 import Play from '~icons/teenyicons/play-outline'
