@@ -182,6 +182,8 @@ function skipSong() {
 
 function handlePlayerError(error: string) {
   console.error('Player error:', error)
+  // Unplayable videos would stall the room; skipping a broken default video would just reload it in a loop
+  if (!isPlayingDefaultVideo) playNext()
 }
 </script>
 
