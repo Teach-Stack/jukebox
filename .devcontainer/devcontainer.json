@@ -1,0 +1,39 @@
+{
+	"name": "jukebox (Tauri Linux + Android)",
+	"build": { "dockerfile": "Dockerfile" },
+	"features": {
+		"ghcr.io/devcontainers/features/node:1": { "version": "lts" }
+	},
+	"remoteUser": "vscode",
+	"containerUser": "vscode",
+	"containerEnv": {
+		"DISPLAY": "${localEnv:DISPLAY}",
+		"WAYLAND_DISPLAY": "${localEnv:WAYLAND_DISPLAY}",
+		"XDG_RUNTIME_DIR": "/tmp/runtime-vscode"
+	},
+	"mounts": [
+		"source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
+		"source=${localEnv:XDG_RUNTIME_DIR}/${localEnv:WAYLAND_DISPLAY},target=/tmp/runtime-vscode/${localEnv:WAYLAND_DISPLAY},type=bind",
+		"source=/dev/bus/usb,target=/dev/bus/usb,type=bind",
+		"source=jukebox-cargo-registry,target=/usr/local/cargo/registry,type=volume"
+	],
+	// USB bus is bind-mounted + cgroup rule (189 = usb) so phones plugged in later still show up.
+	// Device nodes are root-only in the container, so run `sudo adb start-server` once per session.
+	"runArgs": [
+		"--security-opt=label=disable",
+		"--device=/dev/dri",
+		"--device-cgroup-rule=c 189:* rmw"
+	],
+	"forwardPorts": [5173],
+	"postCreateCommand": "sudo chown vscode:vscode /usr/local/cargo/registry && corepack enable && pnpm install",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"svelte.svelte-vscode",
+				"rust-lang.rust-analyzer",
+				"tauri-apps.tauri-vscode",
+				"biomejs.biome"
+			]
+		}
+	}
+}

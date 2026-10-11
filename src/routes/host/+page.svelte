@@ -38,6 +38,23 @@ $effect(() => {
   })
 })
 
+// Keep the host screen awake so playback doesn't stop; the lock drops when hidden, so re-acquire on return
+$effect(() => {
+  let sentinel: WakeLockSentinel | undefined
+  const lock = async () => {
+    if (document.visibilityState !== 'visible') return
+    sentinel = await navigator.wakeLock
+      ?.request('screen')
+      .catch(() => undefined)
+  }
+  lock()
+  document.addEventListener('visibilitychange', lock)
+  return () => {
+    document.removeEventListener('visibilitychange', lock)
+    sentinel?.release()
+  }
+})
+
 // Build the join URL and generate QR code (client-side only)
 $effect(() => {
   const joinUrl = `${window.location.origin}/join?room=${roomId}`
