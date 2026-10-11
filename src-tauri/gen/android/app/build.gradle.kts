@@ -14,7 +14,23 @@ val tauriProperties = Properties().apply {
     }
 }
 
+// Written by CI from repo secrets; without it release builds stay unsigned
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+
 android {
+    if (keystorePropertiesFile.exists()) {
+        val keystoreProperties = Properties().apply {
+            keystorePropertiesFile.inputStream().use { load(it) }
+        }
+        signingConfigs {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["password"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["password"] as String
+            }
+        }
+    }
     compileSdk = 37
     namespace = "org.teachstack.jukebox"
     defaultConfig {
@@ -39,6 +55,7 @@ android {
             }
         }
         getByName("release") {
+            signingConfig = signingConfigs.findByName("release")
             optimization {
                enable = true
             }
