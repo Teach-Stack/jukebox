@@ -1,4 +1,5 @@
 <script lang="ts">
+import { isTauri } from '@tauri-apps/api/core'
 import QRCode from 'qrcode'
 
 import SettingsDialog from '#lib/components/SettingsDialog.svelte'
@@ -20,6 +21,9 @@ function generateRoomId(): string {
 }
 
 let roomId = generateRoomId()
+
+// Browsers can't autoplay or play embed-restricted videos; the Android app downloads audio instead
+const showAndroidApp = /Android/i.test(navigator.userAgent) && !isTauri()
 
 const p2p = new P2PHost(roomId)
 
@@ -207,6 +211,15 @@ function handlePlayerError(error: string) {
 <div class="layout-readable layout-sidebar invert wide">
   <header>
     <h4>Jukebox</h4>
+    {#if showAndroidApp}
+      <a
+        href="https://github.com/Teach-Stack/jukebox/releases/latest"
+        target="_blank"
+        class="btn"
+      >
+        Get the Android app
+      </a>
+    {/if}
     <a
       href="https://github.com/Teach-Stack/jukebox"
       target="_blank"
