@@ -1,4 +1,5 @@
 <script module lang="ts">
+import { convertFileSrc, invoke, isTauri } from '@tauri-apps/api/core'
 import { createLogger } from '#lib'
 
 const logger = createLogger('YouTubePlayer')
@@ -316,6 +317,87 @@ export class YouTubePlayerState {
     this.playerState = 'uninitialized'
   }
 }
+
+/** Desktop app: plays audio downloaded by the Tauri `download` command, so embed restrictions and autoplay blocking don't apply. */
+export class DownloadPlayerState extends YouTubePlayerState {
+  private audio: HTMLAudioElement | null = null
+  private latestId = ''
+
+  override async initialize(
+    _elementId: string,
+    onEnded?: () => void,
+  ): Promise<void> {
+    const audio = new Audio()
+    audio.volume = this.volume / 100
+    audio.ontimeupdate = () => {
+      this.currentTime = audio.currentTime
+    }
+    audio.ondurationchange = () => {
+      this.duration = audio.duration
+    }
+    audio.onplay = () => {
+      this.playerState = 'playing'
+    }
+    audio.onpause = () => {
+      if (!audio.ended) this.playerState = 'paused'
+    }
+    audio.onended = () => {
+      this.playerState = 'ended'
+      onEnded?.()
+    }
+    audio.onerror = () => {
+      this.playerState = 'error'
+      this.errorMessage = 'Downloaded audio could not be played'
+    }
+    this.audio = audio
+    this.playerState = 'ready'
+    this.isPlayerReady = true
+  }
+
+  override async loadVideo(youtubeId: string): Promise<void> {
+    if (!this.audio) return
+    this.latestId = youtubeId
+    this.errorMessage = ''
+    this.playerState = 'loading'
+    logger.start('Downloading audio:', youtubeId)
+    try {
+      const path = await invoke<string>('download', { videoId: youtubeId })
+      // A newer song was queued while this one downloaded
+      if (!this.audio || this.latestId !== youtubeId) return
+      this.audio.src = convertFileSrc(path)
+      await this.audio.play()
+    } catch (error) {
+      if (this.latestId !== youtubeId) return
+      logger.error('Download failed:', error)
+      this.playerState = 'error'
+      this.errorMessage = `Download failed: ${error}`
+    }
+  }
+
+  override play(): void {
+    this.audio?.play()
+  }
+
+  override pause(): void {
+    this.audio?.pause()
+  }
+
+  override setVolume(level: number): void {
+    this.volume = level
+    if (this.audio) this.audio.volume = level / 100
+  }
+
+  override seekTo(seconds: number): void {
+    if (this.audio) this.audio.currentTime = seconds
+  }
+
+  override destroy(): void {
+    this.audio?.pause()
+    this.audio = null
+    this.isPlayerReady = false
+    this.playerState = 'uninitialized'
+  }
+}
 </script>
 
 <script lang="ts">
@@ -335,7 +417,9 @@ let { song, onEnded, onError, onSkip }: Props = $props()
 
 const youtubeId = $derived(song.youtubeId)
 
-const playerState = new YouTubePlayerState()
+const playerState = isTauri()
+  ? new DownloadPlayerState()
+  : new YouTubePlayerState()
 const playerElementId = 'youtube-player'
 
 // Initialize on mount

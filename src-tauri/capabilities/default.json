@@ -1,0 +1,10 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Lets the hosted Jukebox site call the download command",
+  "windows": ["main"],
+  "remote": {
+    "urls": ["https://jukebox.teachstack.org/*"]
+  },
+  "permissions": ["core:default", "allow-download"]
+}

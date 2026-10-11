@@ -1,4 +1,5 @@
 <script lang="ts">
+import { isTauri } from '@tauri-apps/api/core'
 import QRCode from 'qrcode'
 
 import SettingsDialog from '#lib/components/SettingsDialog.svelte'
@@ -21,6 +22,9 @@ function generateRoomId(): string {
 
 let roomId = generateRoomId()
 
+// Browsers can't autoplay or play embed-restricted videos; the Android app downloads audio instead
+const showAndroidApp = /Android/i.test(navigator.userAgent) && !isTauri()
+
 const p2p = new P2PHost(roomId)
 
 let playerRef: YouTubePlayer | null = $state(null)
@@ -36,6 +40,23 @@ $effect(() => {
   Sessions.isReady().then(() => {
     if (!Sessions.findOne({ id: roomId })) Sessions.insert({ id: roomId })
   })
+})
+
+// Keep the host screen awake so playback doesn't stop; the lock drops when hidden, so re-acquire on return
+$effect(() => {
+  let sentinel: WakeLockSentinel | undefined
+  const lock = async () => {
+    if (document.visibilityState !== 'visible') return
+    sentinel = await navigator.wakeLock
+      ?.request('screen')
+      .catch(() => undefined)
+  }
+  lock()
+  document.addEventListener('visibilitychange', lock)
+  return () => {
+    document.removeEventListener('visibilitychange', lock)
+    sentinel?.release()
+  }
 })
 
 // Build the join URL and generate QR code (client-side only)
@@ -190,6 +211,15 @@ function handlePlayerError(error: string) {
 <div class="layout-readable layout-sidebar invert wide">
   <header>
     <h4>Jukebox</h4>
+    {#if showAndroidApp}
+      <a
+        href="https://github.com/Teach-Stack/jukebox/releases/latest"
+        target="_blank"
+        class="btn"
+      >
+        Get the Android app
+      </a>
+    {/if}
     <a
       href="https://github.com/Teach-Stack/jukebox"
       target="_blank"
