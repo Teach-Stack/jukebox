@@ -15,13 +15,7 @@
         "width": 1024,
         "height": 768
       }
-    ],
-    "security": {
-      "assetProtocol": {
-        "enable": true,
-        "scope": ["$APPCACHE/**"]
-      }
-    }
+    ]
   },
   "bundle": {
     "active": true,

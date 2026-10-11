@@ -69,10 +69,6 @@ jobs:
         run: pnpm tauri android build --apk
         env:
           NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
-          BINDGEN_EXTRA_CLANG_ARGS_aarch64_linux_android: --sysroot=${{ steps.ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
-          BINDGEN_EXTRA_CLANG_ARGS_armv7_linux_androideabi: --sysroot=${{ steps.ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
-          BINDGEN_EXTRA_CLANG_ARGS_i686_linux_android: --sysroot=${{ steps.ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
-          BINDGEN_EXTRA_CLANG_ARGS_x86_64_linux_android: --sysroot=${{ steps.ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
 
       - name: Rename APK
         run: mv src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk "jukebox-$GITHUB_REF_NAME.apk"

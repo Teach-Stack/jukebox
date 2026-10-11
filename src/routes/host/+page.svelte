@@ -22,7 +22,7 @@ function generateRoomId(): string {
 
 let roomId = generateRoomId()
 
-// Browsers can't autoplay or play embed-restricted videos; the Android app downloads audio instead
+// Point Android browser hosts to the app
 const showAndroidApp = /Android/i.test(navigator.userAgent) && !isTauri()
 
 const p2p = new P2PHost(roomId)

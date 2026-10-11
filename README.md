@@ -22,14 +22,14 @@ A local-first collaborative music player for classrooms. Students can queue song
 
 ## Native Host App
 
-`src-tauri/` wraps the hosted site in a Tauri window. Instead of the YouTube iframe, the host downloads each song's audio with [rustypipe](https://codeberg.org/ThetaDev/rustypipe) and plays it locally, so embed-disabled videos play and songs autoplay. Students still join from a normal browser.
+`src-tauri/` wraps the hosted site in a Tauri window; the Android app is built from it. Students still join from a normal browser.
 
 ```sh
 pnpm tauri dev    # run
 pnpm tauri build  # installer for the current OS
 ```
 
-Requires Rust and the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/). Audio is cached in the app cache directory.
+Requires Rust and the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/).
 
 ## License
 

@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/devcontainers/rust:1-trixie
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y --no-install-recommends \
         libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev \
-        libayatana-appindicator3-dev librsvg2-dev openjdk-21-jdk-headless unzip libclang-dev \
+        libayatana-appindicator3-dev librsvg2-dev openjdk-21-jdk-headless unzip \
     && rm -rf /var/lib/apt/lists/* \
     && install -d -o vscode -g vscode -m 700 /tmp/runtime-vscode
 
@@ -13,11 +13,6 @@ ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 \
     ANDROID_HOME=/opt/android-sdk \
     NDK_HOME=/opt/android-sdk/ndk/27.3.13750724
 ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
-# rquickjs generates its Android bindings with bindgen, which needs the NDK headers
-ENV BINDGEN_EXTRA_CLANG_ARGS_aarch64_linux_android=--sysroot=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
-    BINDGEN_EXTRA_CLANG_ARGS_armv7_linux_androideabi=--sysroot=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
-    BINDGEN_EXTRA_CLANG_ARGS_i686_linux_android=--sysroot=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
-    BINDGEN_EXTRA_CLANG_ARGS_x86_64_linux_android=--sysroot=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot
 
 RUN curl -fsSLo /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-16111833_latest.zip \
     && mkdir -p $ANDROID_HOME/cmdline-tools \
